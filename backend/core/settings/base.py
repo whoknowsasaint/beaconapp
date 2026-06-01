@@ -31,12 +31,14 @@ DJANGO_APPS = [
 THIRD_PARTY_APPS = [
     "rest_framework",
     "corsheaders",
+    "django_filters",
 ]
 
 LOCAL_APPS = [
     "apps.monitors",
     "apps.incidents",
     "apps.status_pages",
+    "apps.api_keys",
 ]
 
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
@@ -127,23 +129,50 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 # ─── Django REST Framework ────────────────────
 
 REST_FRAMEWORK = {
+    # ── Authentication ──────────────────────
     "DEFAULT_AUTHENTICATION_CLASSES": [
         "rest_framework.authentication.SessionAuthentication",
+        "apps.api_keys.authentication.APIKeyAuthentication",
     ],
+
+    # ── Permissions ─────────────────────────
     "DEFAULT_PERMISSION_CLASSES": [
         "rest_framework.permissions.IsAuthenticated",
     ],
+
+    # ── Rendering ───────────────────────────
     "DEFAULT_RENDERER_CLASSES": [
         "rest_framework.renderers.JSONRenderer",
     ],
-    "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.PageNumberPagination",
+
+    # ── Pagination ──────────────────────────
+    # Single class used by all list views.
+    "DEFAULT_PAGINATION_CLASS": "core.pagination.BeaconPageNumberPagination",
     "PAGE_SIZE": 20,
+
+    # ── Filtering ───────────────────────────
+    "DEFAULT_FILTER_BACKENDS": [
+        "django_filters.rest_framework.DjangoFilterBackend",
+        "rest_framework.filters.SearchFilter",
+        "rest_framework.filters.OrderingFilter",
+    ],
+
+    # ── Exception Handling ──────────────────
+    # Transforms all errors into { error, message, fields }.
+    "EXCEPTION_HANDLER": "core.exceptions.beacon_exception_handler",
+
+    # ── Throttling ──────────────────────────
     "DEFAULT_THROTTLE_CLASSES": [
         "rest_framework.throttling.AnonRateThrottle",
         "rest_framework.throttling.UserRateThrottle",
     ],
     "DEFAULT_THROTTLE_RATES": {
-        "anon": "100/hour",
-        "user": "1000/hour",
+        # Global defaults
+        "anon":          "100/hour",
+        "user":          "1000/hour",
+        # Named scopes — matched by throttle_classes on each view
+        "login":         "5/minute",
+        "public_status": "120/minute",
+        "api_key":       "1000/hour",
     },
 }
