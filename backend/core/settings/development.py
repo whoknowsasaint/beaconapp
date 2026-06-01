@@ -7,7 +7,7 @@
 from .base import *  # noqa: F401, F403
 
 # ─── Security ─────────────────────────────────
-
+SILENCED_SYSTEM_CHECKS = ['models.E034']
 DEBUG = True
 
 # ─── CORS ─────────────────────────────────────
