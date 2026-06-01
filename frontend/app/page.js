@@ -9,7 +9,11 @@ import { motion } from "framer-motion"
 import GlassPanel from "@/components/scenes/shared/GlassPanel"
 import SceneWrapper from "@/components/scenes/shared/SceneWrapper"
 import { panelVariants, DURATION, EASE } from "@/lib/motion"
+import { redirect } from "next/navigation"
 
+export default function RootPage() {
+  redirect("/login")
+}
 // ─── Minimal test scene ───────────────────────
 // Accepts inView + reducedMotion injected by SceneWrapper.
 // This is the exact pattern every real scene will follow.
