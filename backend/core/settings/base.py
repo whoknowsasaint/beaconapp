@@ -34,8 +34,7 @@ THIRD_PARTY_APPS = [
 ]
 
 LOCAL_APPS = [
-    # Beacon apps will be registered here as we build them
-    # e.g. "apps.monitors", "apps.incidents", "apps.status_pages"
+    "apps.monitors",
 ]
 
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
