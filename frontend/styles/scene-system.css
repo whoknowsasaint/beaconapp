@@ -1,0 +1,125 @@
+/* ──────────────────────────────────────────────
+   Beacon — Scene System CSS
+   Scene-specific tokens and utility classes that
+   extend globals.css for the Product Scene System.
+   Import this in scene components that need it,
+   or import once in globals.css (both are valid).
+   ────────────────────────────────────────────── */
+
+/* ─── Scene Background Tokens ───────────────── */
+
+:root {
+  /* Scene 01 — Uptime */
+  --scene-uptime-bg: #080B10;
+
+  /* Scene 02 — Incident */
+  --scene-incident-bg: #09090B;
+
+  /* Scene 03 — Telegram */
+  --scene-telegram-bg: #080B10;
+  --scene-telegram-accent: #229ED9;
+
+  /* Scene 04 — Slack */
+  --scene-slack-bg: #080B10;
+  --scene-slack-accent: #4A154B;
+
+  /* Scene 05 — Status Page */
+  --scene-statuspage-bg: #0C1018;
+
+  /* Scene 06 — Reporting */
+  --scene-reporting-bg: #080B10;
+
+  /* Scene 07 — API */
+  --scene-api-bg: #060809;
+  --scene-api-accent: rgba(34, 197, 94, 0.2);
+}
+
+/* ─── Isometric Grid Pattern ────────────────── */
+/* Used in Scene 01 (Uptime) as context layer.   */
+/* Applied via className="scene-iso-grid".        */
+
+.scene-iso-grid {
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.04) 1px, transparent 1px);
+  background-size: 40px 40px;
+}
+
+/* ─── Scanline Texture ───────────────────────── */
+/* Used in Scene 07 (API) terminal material.      */
+
+.scene-scanlines {
+  background-image: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 2px,
+    rgba(0, 0, 0, 0.1) 2px,
+    rgba(0, 0, 0, 0.1) 4px
+  );
+}
+
+/* ─── Uptime Bar Colors ──────────────────────── */
+
+.uptime-bar-healthy   { background-color: #22C55E; }
+.uptime-bar-degraded  { background-color: #F59E0B; }
+.uptime-bar-outage    { background-color: #EF4444; }
+.uptime-bar-unknown   { background-color: #374151; }
+
+/* ─── Status Badge Base ──────────────────────── */
+
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.25rem 0.625rem;
+  border-radius: 9999px;
+  font-size: 0.6875rem;
+  font-weight: 500;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  line-height: 1;
+}
+
+.status-badge--operational {
+  background: rgba(34, 197, 94, 0.12);
+  color: #22C55E;
+  border: 1px solid rgba(34, 197, 94, 0.2);
+}
+
+.status-badge--degraded {
+  background: rgba(245, 158, 11, 0.12);
+  color: #F59E0B;
+  border: 1px solid rgba(245, 158, 11, 0.2);
+}
+
+.status-badge--outage {
+  background: rgba(239, 68, 68, 0.12);
+  color: #EF4444;
+  border: 1px solid rgba(239, 68, 68, 0.2);
+  box-shadow: 0 0 12px rgba(239, 68, 68, 0.2);
+}
+
+.status-badge--maintenance {
+  background: rgba(59, 130, 246, 0.12);
+  color: #3B82F6;
+  border: 1px solid rgba(59, 130, 246, 0.2);
+}
+
+/* ─── Shimmer Animation ──────────────────────── */
+/* Used on progress steppers and uptime bars.     */
+
+.shimmer-effect {
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.08) 50%,
+    transparent 100%
+  );
+  background-size: 200% auto;
+  animation: shimmer 4s linear infinite;
+}
+
+@keyframes shimmer {
+  0%   { background-position: -200% center; }
+  100% { background-position:  200% center; }
+}

@@ -1,0 +1,226 @@
+/* ──────────────────────────────────────────────
+   Beacon — Global Styles
+   CSS custom properties (design tokens) that power
+   the entire Beacon design system.
+   All Tailwind color tokens reference these variables.
+   ────────────────────────────────────────────── */
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ─── Design Tokens ─────────────────────────── */
+
+:root {
+  /* Surfaces */
+  --color-bg:           #080B10;
+  --color-bg-elevated:  #0D1117;
+  --color-bg-overlay:   rgba(255, 255, 255, 0.04);
+
+  /* Borders */
+  --color-border:       rgba(255, 255, 255, 0.08);
+  --color-border-soft:  rgba(255, 255, 255, 0.04);
+
+  /* Text */
+  --color-text:         rgba(255, 255, 255, 0.92);
+  --color-text-muted:   rgba(255, 255, 255, 0.5);
+  --color-text-faint:   rgba(255, 255, 255, 0.25);
+
+  /* Brand blue */
+  --color-blue:         #3B82F6;
+  --color-blue-glow:    rgba(59, 130, 246, 0.15);
+
+  /* Status colors */
+  --color-green:        #22C55E;
+  --color-amber:        #F59E0B;
+  --color-red:          #EF4444;
+
+  /* Terminal accent */
+  --color-terminal:     #22C55E;
+
+  /* Typography */
+  --font-sans: "Inter", system-ui, -apple-system, sans-serif;
+  --font-mono: "JetBrains Mono", "Fira Code", "Cascadia Code", monospace;
+
+  /* ─── Scene System Easing Curves ─── */
+  --ease-entrance: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-hover:    cubic-bezier(0.4, 0, 0.2, 1);
+
+  /* ─── Scene System Timing Scale ─── */
+  --duration-instant:  100ms;
+  --duration-fast:     150ms;
+  --duration-normal:   300ms;
+  --duration-entrance: 500ms;
+  --duration-draw:     800ms;
+
+  /* ─── Glass Material ─── */
+  --glass-bg:      rgba(255, 255, 255, 0.04);
+  --glass-border:  rgba(255, 255, 255, 0.08);
+  --glass-blur:    12px;
+  --glass-shadow:  0 24px 80px rgba(0, 0, 0, 0.6);
+}
+
+/* ─── Base Reset & Defaults ─────────────────── */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  scroll-behavior: smooth;
+}
+
+body {
+  background-color: var(--color-bg);
+  color: var(--color-text);
+  font-family: var(--font-sans);
+  font-size: 1rem;
+  line-height: 1.6;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* ─── Glass Panel Utility Class ─────────────── */
+/* Applied to all primary scene surfaces.         */
+/* Use via className="glass-panel" in JSX.         */
+
+.glass-panel {
+  background: var(--glass-bg);
+  backdrop-filter: blur(var(--glass-blur));
+  -webkit-backdrop-filter: blur(var(--glass-blur));
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--glass-shadow);
+}
+
+.glass-panel--top-highlight::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.08),
+    transparent
+  );
+  pointer-events: none;
+}
+
+/* ─── Terminal Material ──────────────────────── */
+/* Used exclusively in Scene 07 (API Keys).       */
+
+.terminal-panel {
+  background: #0A0F0A;
+  border: 1px solid rgba(34, 197, 94, 0.2);
+  font-family: var(--font-mono);
+}
+
+/* ─── Scene Glow Utility ─────────────────────── */
+/* Ambient glow layers behind scene panels.       */
+/* Implemented as pseudo-elements — zero DOM cost.*/
+
+.scene-glow-blue {
+  position: relative;
+}
+
+.scene-glow-blue::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    600px circle at 50% 50%,
+    rgba(59, 130, 246, 0.15),
+    transparent 70%
+  );
+  pointer-events: none;
+  z-index: 0;
+}
+
+.scene-glow-red::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    500px circle at 50% 50%,
+    rgba(239, 68, 68, 0.12),
+    transparent 70%
+  );
+  pointer-events: none;
+  z-index: 0;
+}
+
+.scene-glow-green::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    300px circle at 50% 50%,
+    rgba(34, 197, 94, 0.08),
+    transparent 70%
+  );
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* ─── Reduced Motion ─────────────────────────── */
+/* Disables all CSS animations when user prefers  */
+/* reduced motion. Framer Motion respects this    */
+/* via useReducedMotion() in SceneWrapper.         */
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* ─── Selection ──────────────────────────────── */
+
+::selection {
+  background-color: rgba(59, 130, 246, 0.3);
+  color: rgba(255, 255, 255, 0.95);
+}
+
+/* ─── Scrollbar ──────────────────────────────── */
+
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.12);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+/* ─── Focus Visible ──────────────────────────── */
+/* Matches hover glow style — not the default     */
+/* browser outline. Required by our accessibility */
+/* spec (keyboard = hover visual parity).         */
+
+:focus-visible {
+  outline: 2px solid var(--color-blue);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
