@@ -187,3 +187,231 @@ class IncidentMonitorModelTest(TestCase):
             IncidentMonitor.objects.filter(monitor_id=monitor_id).count(),
             0,
         )
+
+from rest_framework.test import APIClient
+from rest_framework import status as drf_status
+
+
+class IncidentAPITest(TestCase):
+
+    def setUp(self):
+        self.client = APIClient()
+        self.user = User.objects.create_user(
+            username="incapi", password="pass123"
+        )
+        self.other_user = User.objects.create_user(
+            username="other", password="pass123"
+        )
+        self.client.force_authenticate(user=self.user)
+
+        self.incident = Incident.objects.create(
+            owner=self.user,
+            title="API Gateway Down",
+            severity=Incident.Severity.CRITICAL,
+            status=Incident.IncidentStatus.INVESTIGATING,
+            started_at=timezone.now(),
+        )
+
+    def test_list_returns_paginated_shape(self):
+        response = self.client.get("/api/v1/incidents/")
+        self.assertEqual(response.status_code, drf_status.HTTP_200_OK)
+        for key in ["count", "next", "previous", "results"]:
+            self.assertIn(key, response.data)
+
+    def test_list_returns_only_own_incidents(self):
+        Incident.objects.create(
+            owner=self.other_user,
+            title="Other Incident",
+            severity=Incident.Severity.MINOR,
+            started_at=timezone.now(),
+        )
+        response = self.client.get("/api/v1/incidents/")
+        self.assertEqual(response.data["count"], 1)
+
+    def test_create_incident(self):
+        response = self.client.post(
+            "/api/v1/incidents/",
+            {
+                "title":      "New Incident",
+                "severity":   "major",
+                "started_at": timezone.now().isoformat(),
+            },
+            format="json",
+        )
+        self.assertEqual(response.status_code, drf_status.HTTP_201_CREATED)
+        self.assertEqual(response.data["title"], "New Incident")
+
+    def test_create_incident_links_monitors(self):
+        monitor = Monitor.objects.create(
+            owner=self.user,
+            name="Test Monitor",
+            monitor_type=Monitor.MonitorType.HTTP,
+            url="https://test.example.com",
+        )
+        response = self.client.post(
+            "/api/v1/incidents/",
+            {
+                "title":                "Incident With Monitor",
+                "severity":             "critical",
+                "started_at":           timezone.now().isoformat(),
+                "affected_monitor_ids": [str(monitor.id)],
+            },
+            format="json",
+        )
+        self.assertEqual(response.status_code, drf_status.HTTP_201_CREATED)
+        self.assertEqual(len(response.data["affected_monitors"]), 1)
+
+    def test_create_incident_with_other_users_monitor_fails(self):
+        monitor = Monitor.objects.create(
+            owner=self.other_user,
+            name="Not Mine",
+            monitor_type=Monitor.MonitorType.HTTP,
+            url="https://notmine.example.com",
+        )
+        response = self.client.post(
+            "/api/v1/incidents/",
+            {
+                "title":                "Bad Incident",
+                "severity":             "minor",
+                "started_at":           timezone.now().isoformat(),
+                "affected_monitor_ids": [str(monitor.id)],
+            },
+            format="json",
+        )
+        self.assertEqual(response.status_code, drf_status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(response.data["error"], "validation")
+
+    def test_retrieve_own_incident(self):
+        response = self.client.get(f"/api/v1/incidents/{self.incident.id}/")
+        self.assertEqual(response.status_code, drf_status.HTTP_200_OK)
+        self.assertEqual(response.data["title"], "API Gateway Down")
+
+    def test_retrieve_other_users_incident_returns_404(self):
+        other = Incident.objects.create(
+            owner=self.other_user,
+            title="Not Mine",
+            severity=Incident.Severity.MINOR,
+            started_at=timezone.now(),
+        )
+        response = self.client.get(f"/api/v1/incidents/{other.id}/")
+        self.assertEqual(response.status_code, drf_status.HTTP_404_NOT_FOUND)
+
+    def test_patch_incident_status(self):
+        response = self.client.patch(
+            f"/api/v1/incidents/{self.incident.id}/",
+            {"status": "identified"},
+            format="json",
+        )
+        self.assertEqual(response.status_code, drf_status.HTTP_200_OK)
+        self.assertEqual(response.data["status"], "identified")
+
+    def test_patch_status_resolved_sets_resolved_at(self):
+        response = self.client.patch(
+            f"/api/v1/incidents/{self.incident.id}/",
+            {"status": "resolved"},
+            format="json",
+        )
+        self.assertEqual(response.status_code, drf_status.HTTP_200_OK)
+        self.assertIsNotNone(response.data["resolved_at"])
+
+    def test_delete_incident(self):
+        response = self.client.delete(
+            f"/api/v1/incidents/{self.incident.id}/"
+        )
+        self.assertEqual(response.status_code, drf_status.HTTP_204_NO_CONTENT)
+        self.assertFalse(
+            Incident.objects.filter(id=self.incident.id).exists()
+        )
+
+    def test_filter_by_status(self):
+        response = self.client.get(
+            "/api/v1/incidents/?status=investigating"
+        )
+        self.assertEqual(response.data["count"], 1)
+
+    def test_filter_by_severity(self):
+        response = self.client.get(
+            "/api/v1/incidents/?severity=critical"
+        )
+        self.assertEqual(response.data["count"], 1)
+
+    def test_search_by_title(self):
+        response = self.client.get(
+            "/api/v1/incidents/?search=API Gateway"
+        )
+        self.assertEqual(response.data["count"], 1)
+
+    def test_unauthenticated_returns_401_with_correct_error_shape(self):
+        self.client.force_authenticate(user=None)
+        response = self.client.get("/api/v1/incidents/")
+        self.assertEqual(response.status_code, drf_status.HTTP_401_UNAUTHORIZED)
+        self.assertEqual(response.data["error"], "auth")
+
+
+class IncidentUpdateAPITest(TestCase):
+
+    def setUp(self):
+        self.client = APIClient()
+        self.user = User.objects.create_user(
+            username="updapi", password="pass123"
+        )
+        self.client.force_authenticate(user=self.user)
+        self.incident = Incident.objects.create(
+            owner=self.user,
+            title="Test Incident",
+            severity=Incident.Severity.MINOR,
+            started_at=timezone.now(),
+        )
+
+    def test_list_updates_empty(self):
+        response = self.client.get(
+            f"/api/v1/incidents/{self.incident.id}/updates/"
+        )
+        self.assertEqual(response.status_code, drf_status.HTTP_200_OK)
+        self.assertEqual(response.data["count"], 0)
+
+    def test_post_update(self):
+        response = self.client.post(
+            f"/api/v1/incidents/{self.incident.id}/updates/",
+            {"message": "We are investigating."},
+            format="json",
+        )
+        self.assertEqual(response.status_code, drf_status.HTTP_201_CREATED)
+        self.assertEqual(response.data["message"], "We are investigating.")
+
+    def test_post_update_records_current_incident_status(self):
+        response = self.client.post(
+            f"/api/v1/incidents/{self.incident.id}/updates/",
+            {"message": "Looking into it."},
+            format="json",
+        )
+        self.assertEqual(
+            response.data["status_at_update"],
+            Incident.IncidentStatus.INVESTIGATING,
+        )
+
+    def test_post_update_blank_message_fails(self):
+        response = self.client.post(
+            f"/api/v1/incidents/{self.incident.id}/updates/",
+            {"message": "   "},
+            format="json",
+        )
+        self.assertEqual(response.status_code, drf_status.HTTP_400_BAD_REQUEST)
+        self.assertIn("message", response.data["fields"])
+
+    def test_post_update_on_other_users_incident_returns_404(self):
+        other_user = User.objects.create_user(
+            username="other2", password="pass123"
+        )
+        other_incident = Incident.objects.create(
+            owner=other_user,
+            title="Other",
+            severity=Incident.Severity.MINOR,
+            started_at=timezone.now(),
+        )
+        response = self.client.post(
+            f"/api/v1/incidents/{other_incident.id}/updates/",
+            {"message": "Sneaky."},
+            format="json",
+        )
+        self.assertEqual(response.status_code, drf_status.HTTP_404_NOT_FOUND)        
