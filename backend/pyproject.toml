@@ -1,0 +1,43 @@
+# ──────────────────────────────────────────────
+# Beacon — Backend Python Project Configuration
+# Centralises tool configuration for the backend.
+# ──────────────────────────────────────────────
+
+[tool.flake8]
+max-line-length = 100
+exclude = [
+    "migrations",
+    ".venv",
+    "__pycache__",
+    "*.egg-info",
+]
+extend-ignore = [
+    # E501: line too long (handled by max-line-length)
+    # W503: line break before binary operator (conflicts with Black)
+    "W503",
+    # E203: whitespace before ':' (conflicts with Black)
+    "E203",
+]
+per-file-ignores = [
+    # F401: imported but unused — OK in __init__ and settings
+    "__init__.py:F401",
+    "core/settings/*.py:F401,F403,F405",
+]
+
+[tool.pytest.ini_options]
+DJANGO_SETTINGS_MODULE = "core.settings.development"
+python_files = ["tests.py", "test_*.py"]
+python_classes = ["*Test"]
+python_functions = ["test_*"]
+
+[tool.coverage.run]
+source = ["apps"]
+omit = [
+    "*/migrations/*",
+    "*/tests.py",
+    "*/__init__.py",
+]
+
+[tool.coverage.report]
+show_missing = true
+skip_covered = false
