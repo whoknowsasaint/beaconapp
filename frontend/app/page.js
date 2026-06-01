@@ -1,53 +1,131 @@
 // ──────────────────────────────────────────────
-// Beacon — Home Page (Temporary Scaffold)
-// This will be replaced with the full landing page
-// including all seven product scenes.
-// For now it confirms the design system is working.
+// Beacon — Home Page (Phase 01 Component Test)
+// Tests GlassPanel and SceneWrapper are working.
 // ──────────────────────────────────────────────
 
-export default function HomePage() {
+"use client"
+
+import { motion } from "framer-motion"
+import GlassPanel from "@/components/scenes/shared/GlassPanel"
+import SceneWrapper from "@/components/scenes/shared/SceneWrapper"
+import { panelVariants, DURATION, EASE } from "@/lib/motion"
+
+// ─── Minimal test scene ───────────────────────
+// Accepts inView + reducedMotion injected by SceneWrapper.
+// This is the exact pattern every real scene will follow.
+
+function TestScene({ inView = false, reducedMotion = false }) {
   return (
-    <main className="min-h-screen flex flex-col items-center justify-center px-6">
-
-      {/* Phase 01 Health Check */}
-      <div className="glass-panel relative rounded-2xl p-8 max-w-md w-full text-center">
-        <div className="glass-panel--top-highlight" />
-
-        {/* Status dot */}
-        <div className="flex items-center justify-center gap-2 mb-6">
+    <motion.div
+      variants={panelVariants}
+      initial="hidden"
+      animate={inView ? "visible" : "hidden"}
+      className="w-full max-w-lg"
+    >
+      <GlassPanel
+        glow="#3B82F6"
+        glowOpacity={0.12}
+        glowSize={500}
+        className="p-8"
+      >
+        {/* Status row */}
+        <div className="flex items-center gap-2 mb-6">
           <span className="relative flex h-2 w-2">
-            <span className="animate-ping-ring absolute inline-flex h-full w-full rounded-full bg-beacon-green opacity-75" />
+            <span
+              className={[
+                "absolute inline-flex h-full w-full rounded-full bg-beacon-green opacity-75",
+                reducedMotion ? "" : "animate-ping-ring",
+              ]
+                .filter(Boolean)
+                .join(" ")}
+            />
             <span className="relative inline-flex rounded-full h-2 w-2 bg-beacon-green" />
           </span>
           <span className="text-beacon-green text-xs font-mono tracking-wider uppercase">
-            Systems operational
+            All systems operational
           </span>
         </div>
 
-        {/* Logo text */}
-        <h1 className="text-2xl font-semibold text-beacon-text mb-2 tracking-tight">
+        {/* Title */}
+        <h1 className="text-xl font-semibold text-beacon-text mb-1 tracking-tight">
           Beacon
         </h1>
-        <p className="text-beacon-text-muted text-sm leading-relaxed">
-          Phase 01 — Foundation &amp; Infrastructure
-          <br />
-          Design system active. Database connected.
+        <p className="text-beacon-text-muted text-sm mb-6">
+          Phase 01 complete — foundation is live.
         </p>
 
-        {/* Design token swatches — visual proof the system works */}
-        <div className="mt-6 grid grid-cols-5 gap-2">
-          <div className="h-6 rounded bg-beacon-blue" title="beacon-blue" />
-          <div className="h-6 rounded bg-beacon-green" title="beacon-green" />
-          <div className="h-6 rounded bg-beacon-amber" title="beacon-amber" />
-          <div className="h-6 rounded bg-beacon-red" title="beacon-red" />
-          <div className="h-6 rounded bg-beacon-terminal" title="beacon-terminal" />
+        {/* Component proof */}
+        <div className="space-y-2 mb-6">
+          <ComponentCheck label="GlassPanel" status="active" />
+          <ComponentCheck label="SceneWrapper" status="active" />
+          <ComponentCheck label="Motion constants" status="active" />
+          <ComponentCheck label="Design tokens" status="active" />
+          <ComponentCheck label="PostgreSQL" status="active" />
+          <ComponentCheck label="Django backend" status="active" />
         </div>
 
-        <p className="mt-3 text-2xs text-beacon-text-faint font-mono">
-          blue · green · amber · red · terminal
-        </p>
-      </div>
+        {/* Color swatches */}
+        <div className="grid grid-cols-5 gap-1.5">
+          {[
+            ["bg-beacon-blue",     "Blue"],
+            ["bg-beacon-green",    "Green"],
+            ["bg-beacon-amber",    "Amber"],
+            ["bg-beacon-red",      "Red"],
+            ["bg-beacon-terminal", "Terminal"],
+          ].map(([bg, label]) => (
+            <div key={label} className="flex flex-col items-center gap-1">
+              <div className={`h-5 w-full rounded ${bg}`} />
+              <span className="text-2xs text-beacon-text-faint font-mono">
+                {label}
+              </span>
+            </div>
+          ))}
+        </div>
+      </GlassPanel>
+    </motion.div>
+  )
+}
 
+// ─── Small helper — checklist row ─────────────
+
+function ComponentCheck({ label, status }) {
+  const isActive = status === "active"
+  return (
+    <div className="flex items-center gap-2.5">
+      <span
+        className={`flex-shrink-0 h-1.5 w-1.5 rounded-full ${
+          isActive ? "bg-beacon-green" : "bg-beacon-text-faint"
+        }`}
+      />
+      <span
+        className={`text-sm font-mono ${
+          isActive ? "text-beacon-text" : "text-beacon-text-faint"
+        }`}
+      >
+        {label}
+      </span>
+      <span
+        className={`ml-auto text-2xs font-mono ${
+          isActive ? "text-beacon-green" : "text-beacon-text-faint"
+        }`}
+      >
+        {isActive ? "OK" : "pending"}
+      </span>
+    </div>
+  )
+}
+
+// ─── Page ─────────────────────────────────────
+
+export default function HomePage() {
+  return (
+    <main className="min-h-screen flex flex-col items-center justify-center">
+      <SceneWrapper
+        ariaLabel="Beacon Phase 01 health check panel showing all foundation systems operational."
+        id="scene-health"
+      >
+        <TestScene />
+      </SceneWrapper>
     </main>
   )
 }

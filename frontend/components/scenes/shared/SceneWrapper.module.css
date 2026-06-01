@@ -1,0 +1,65 @@
+/* ──────────────────────────────────────────────
+   Beacon — SceneWrapper Module CSS
+   Layout and structural styles for the scene
+   container. Motion, colors, and materials are
+   handled by globals.css and Tailwind.
+   ────────────────────────────────────────────── */
+
+/* ─── Outer Container ────────────────────────── */
+/* Positions the scene within the page layout.   */
+/* Width and padding create the breathing room   */
+/* around each scene section.                    */
+
+.sceneOuter {
+  position: relative;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+
+  /* Consistent vertical padding between scenes */
+  padding: 6rem 1.5rem;
+
+  /* Prevent glow pseudo-elements from overflowing */
+  overflow: hidden;
+}
+
+/* ─── Inner Container ────────────────────────── */
+/* Constrains the scene to a max width and         */
+/* establishes the aspect ratio for layout         */
+/* stability (prevents CLS on load).               */
+
+.sceneInner {
+  position: relative;
+  width: 100%;
+  max-width: 900px;
+
+  /* Default aspect ratio — overridden per scene via className */
+  /* aspect-ratio: 16 / 9; */
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ─── Reduced Motion Override ────────────────── */
+/* When the user prefers reduced motion, the       */
+/* SceneWrapper adds this class to its root.       */
+/* Any CSS animation inside a scene is killed.     */
+
+.reducedMotion *,
+.reducedMotion *::before,
+.reducedMotion *::after {
+  animation-duration: 0.01ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.01ms !important;
+}
+
+/* ─── Mobile Adjustments ─────────────────────── */
+
+@media (max-width: 768px) {
+  .sceneOuter {
+    padding: 4rem 1rem;
+  }
+}
