@@ -157,6 +157,12 @@ class StatusPage(models.Model):
         default="",
         help_text="Custom domain for this status page. e.g. 'status.acme.com'.",
     )
+    slack_webhook_url = models.URLField(
+        max_length=500,
+        blank=True,
+        default="",
+        help_text="Slack incoming webhook URL for incident notifications.",
+    )
 
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)

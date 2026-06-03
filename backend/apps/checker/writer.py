@@ -86,6 +86,7 @@ def _is_recovery(previous, current):
 
 def _open_incident(monitor, result, started_at):
     from apps.incidents.models import Incident, IncidentUpdate, IncidentMonitor
+    from apps.notifications.dispatcher import dispatch
 
     existing = Incident.objects.filter(
         owner=monitor.owner,
@@ -138,9 +139,18 @@ def _open_incident(monitor, result, started_at):
         result.error,
     )
 
+    try:
+        dispatch(incident, "incident_created")
+    except Exception:
+        logger.exception(
+            "Dispatcher failed for incident_created: incident=%s",
+            incident.id,
+        )
+
 
 def _resolve_incidents(monitor, resolved_at):
     from apps.incidents.models import Incident, IncidentUpdate, IncidentMonitor
+    from apps.notifications.dispatcher import dispatch
 
     open_incidents = Incident.objects.filter(
         auto_created=True,
@@ -172,3 +182,11 @@ def _resolve_incidents(monitor, resolved_at):
             "Incident resolved for monitor %s",
             monitor.name,
         )
+
+        try:
+            dispatch(incident, "incident_resolved")
+        except Exception:
+            logger.exception(
+                "Dispatcher failed for incident_resolved: incident=%s",
+                incident.id,
+            )

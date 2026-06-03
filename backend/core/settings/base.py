@@ -40,6 +40,7 @@ LOCAL_APPS = [
     "apps.status_pages",
     "apps.api_keys",
     "apps.checker",
+    "apps.notifications",
 ]
 
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
@@ -177,3 +178,6 @@ REST_FRAMEWORK = {
         "api_key":       "1000/hour",
     },
 }
+
+TELEGRAM_BOT_TOKEN  = config("TELEGRAM_BOT_TOKEN",  default="")
+NEXT_PUBLIC_APP_URL = config("NEXT_PUBLIC_APP_URL",  default="http://localhost:3000")
