@@ -1,5 +1,5 @@
 import { notFound } from "next/navigation"
-import PublicStatusPage from "@/components/status-pages/PublicStatusPage"
+import LiveStatusPage from "@/components/status-pages/LiveStatusPage"
 
 export const revalidate = 30
 
@@ -57,9 +57,12 @@ export default async function PublicStatusPageRoute({ params }) {
     })
   )
 
+  const initialPage = { ...page, monitors: monitorsWithUptime }
+
   return (
-    <PublicStatusPage
-      page={{ ...page, monitors: monitorsWithUptime }}
+    <LiveStatusPage
+      initialPage={initialPage}
+      slug={slug}
     />
   )
 }

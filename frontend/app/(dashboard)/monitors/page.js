@@ -12,6 +12,7 @@ import Modal from "@/components/ui/Modal"
 import ConfirmDialog from "@/components/ui/ConfirmDialog"
 import MonitorForm from "@/components/monitors/MonitorForm"
 import { toast } from "@/lib/useToast.js"
+import usePolling from "@/lib/usePolling.js"
 
 function formatDate(str) {
   if (!str) return "Never"
@@ -57,7 +58,7 @@ export default function MonitorsPage() {
     }
   }, [search, statusFilter])
 
-  useEffect(() => { load() }, [load])
+  usePolling(load, 30000)
 
   async function handleDelete() {
     if (!deleteTarget) return
