@@ -181,3 +181,42 @@ class MonitorCheckListView(APIView):
         page       = paginator.paginate_queryset(checks, request)
         serializer = MonitorCheckSerializer(page, many=True)
         return paginator.get_paginated_response(serializer.data)
+
+class UptimeView(APIView):
+    """
+    GET /api/v1/monitors/{monitor_id}/uptime/
+
+    Returns daily uptime buckets for the last N days.
+    Query param: ?days=90 (default 90, max 365)
+    """
+
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, monitor_id):
+        try:
+            monitor = Monitor.objects.get(id=monitor_id, owner=request.user)
+        except Monitor.DoesNotExist:
+            return Response(
+                {
+                    "error":   "not_found",
+                    "message": "Monitor not found.",
+                    "fields":  None,
+                },
+                status=status.HTTP_404_NOT_FOUND,
+            )
+
+        try:
+            days = int(request.query_params.get("days", 90))
+        except (ValueError, TypeError):
+            days = 90
+
+        days = max(1, min(days, 365))
+
+        from .uptime import get_daily_uptime
+        buckets = get_daily_uptime(monitor, days=days)
+
+        return Response({
+            "monitor_id": str(monitor.id),
+            "days":       days,
+            "buckets":    buckets,
+        })        

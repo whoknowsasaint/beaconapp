@@ -1,11 +1,11 @@
 # Beacon -- Monitor URL Patterns
 # Mounted at /api/v1/monitors/ in core/urls.py
-
 from django.urls import path
 from .views import (
     MonitorListCreateView,
     MonitorDetailView,
     MonitorCheckListView,
+    UptimeView,
 )
 
 urlpatterns = [
@@ -23,5 +23,10 @@ urlpatterns = [
         "<uuid:monitor_id>/checks/",
         MonitorCheckListView.as_view(),
         name="monitor-check-list",
+    ),
+    path(
+        "<uuid:monitor_id>/uptime/",
+        UptimeView.as_view(),
+        name="monitor-uptime",
     ),
 ]

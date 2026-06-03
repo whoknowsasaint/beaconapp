@@ -257,3 +257,119 @@ class MonitorAPITest(TestCase):
         response = self.client.get("/api/v1/monitors/")
         self.assertEqual(response.status_code, drf_status.HTTP_401_UNAUTHORIZED)
         self.assertEqual(response.data["error"], "auth")        
+
+
+from django.utils import timezone as tz
+from datetime import timedelta
+
+
+class UptimeAggregationTest(TestCase):
+
+    def setUp(self):
+        self.user    = User.objects.create_user(username="uptimeuser", password="pass")
+        self.monitor = Monitor.objects.create(
+            owner=self.user,
+            name="Uptime Monitor",
+            monitor_type=Monitor.MonitorType.HTTP,
+            url="https://example.com",
+        )
+
+    def _make_check(self, status, days_ago=0):
+        checked_at = tz.now() - timedelta(days=days_ago, hours=1)
+        MonitorCheck.objects.create(
+            monitor=self.monitor,
+            status=status,
+            response_time_ms=100 if status == "up" else None,
+            http_status_code=200 if status == "up" else None,
+            checked_at=checked_at,
+        )
+
+    def test_returns_exactly_n_buckets(self):
+        from apps.monitors.uptime import get_daily_uptime
+        result = get_daily_uptime(self.monitor, days=90)
+        self.assertEqual(len(result), 90)
+
+    def test_day_with_no_checks_is_no_data(self):
+        from apps.monitors.uptime import get_daily_uptime
+        result = get_daily_uptime(self.monitor, days=7)
+        for bucket in result:
+            self.assertEqual(bucket["status"], "no_data")
+            self.assertIsNone(bucket["pct"])
+
+    def test_all_up_checks_returns_100_pct(self):
+        from apps.monitors.uptime import get_daily_uptime
+        for _ in range(10):
+            self._make_check("up", days_ago=0)
+        result  = get_daily_uptime(self.monitor, days=1)
+        today   = result[-1]
+        self.assertEqual(today["status"], "up")
+        self.assertEqual(today["pct"], 100.0)
+
+    def test_all_down_checks_returns_down_status(self):
+        from apps.monitors.uptime import get_daily_uptime
+        for _ in range(10):
+            self._make_check("down", days_ago=0)
+        result = get_daily_uptime(self.monitor, days=1)
+        today  = result[-1]
+        self.assertEqual(today["status"], "down")
+
+    def test_mixed_checks_computes_correct_pct(self):
+        from apps.monitors.uptime import get_daily_uptime
+        for _ in range(8):
+            self._make_check("up",   days_ago=1)
+        for _ in range(2):
+            self._make_check("down", days_ago=1)
+        result     = get_daily_uptime(self.monitor, days=2)
+        yesterday  = result[-2]
+        self.assertEqual(yesterday["up"],    8)
+        self.assertEqual(yesterday["total"], 10)
+        self.assertEqual(yesterday["pct"],   80.0)
+
+    def test_timeout_below_threshold_still_up(self):
+        from apps.monitors.uptime import get_daily_uptime
+        for _ in range(9):
+            self._make_check("up",      days_ago=0)
+        for _ in range(1):
+            self._make_check("timeout", days_ago=0)
+        result = get_daily_uptime(self.monitor, days=1)
+        self.assertEqual(result[-1]["status"], "up")
+
+    def test_timeout_above_threshold_returns_timeout(self):
+        from apps.monitors.uptime import get_daily_uptime
+        for _ in range(7):
+            self._make_check("up",      days_ago=0)
+        for _ in range(3):
+            self._make_check("timeout", days_ago=0)
+        result = get_daily_uptime(self.monitor, days=1)
+        self.assertEqual(result[-1]["status"], "timeout")
+
+    def test_api_endpoint_returns_correct_shape(self):
+        client = APIClient()
+        client.force_authenticate(user=self.user)
+        response = client.get(
+            f"/api/v1/monitors/{self.monitor.id}/uptime/?days=7"
+        )
+        self.assertEqual(response.status_code, drf_status.HTTP_200_OK)
+        self.assertIn("monitor_id", response.data)
+        self.assertIn("days",       response.data)
+        self.assertIn("buckets",    response.data)
+        self.assertEqual(response.data["days"],        7)
+        self.assertEqual(len(response.data["buckets"]), 7)
+
+    def test_api_endpoint_ownership_enforced(self):
+        other = User.objects.create_user(username="otheruptime", password="pass")
+        client = APIClient()
+        client.force_authenticate(user=other)
+        response = client.get(
+            f"/api/v1/monitors/{self.monitor.id}/uptime/"
+        )
+        self.assertEqual(response.status_code, drf_status.HTTP_404_NOT_FOUND)
+
+    def test_days_param_clamped_to_365(self):
+        client = APIClient()
+        client.force_authenticate(user=self.user)
+        response = client.get(
+            f"/api/v1/monitors/{self.monitor.id}/uptime/?days=999"
+        )
+        self.assertEqual(response.status_code, drf_status.HTTP_200_OK)
+        self.assertEqual(response.data["days"], 365)        

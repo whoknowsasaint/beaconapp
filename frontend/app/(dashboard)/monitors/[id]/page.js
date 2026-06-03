@@ -14,6 +14,7 @@ import MonitorForm from "@/components/monitors/MonitorForm"
 import UptimeBars from "@/components/monitors/UptimeBars"
 import CheckHistoryTable from "@/components/monitors/CheckHistoryTable"
 import { CardSkeleton } from "@/components/ui/LoadingSkeleton"
+import useUptime from "@/lib/useUptime.js"
 
 function MetaRow({ label, value }) {
   return (
@@ -35,7 +36,11 @@ export default function MonitorDetailPage() {
   const [editOpen,     setEditOpen]     = useState(false)
   const [deleteOpen,   setDeleteOpen]   = useState(false)
   const [notFound,     setNotFound]     = useState(false)
-
+  const { buckets: uptimeBuckets, loading: uptimeLoading } = useUptime(
+    id,
+    90,
+  )
+  
   useEffect(() => {
     async function load() {
       try {
@@ -183,7 +188,11 @@ export default function MonitorDetailPage() {
           <h2 className="text-xs font-medium text-beacon-text-faint uppercase tracking-wider mb-4">
             90-day uptime
           </h2>
-          <UptimeBars days={[]} totalDays={90} />
+          <UptimeBars
+            days={uptimeBuckets}
+            totalDays={90}
+            loading={uptimeLoading}
+          />
         </div>
       </div>
 

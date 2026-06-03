@@ -3,29 +3,37 @@ import PublicStatusPage from "@/components/status-pages/PublicStatusPage"
 
 export const revalidate = 30
 
+const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000"
+
 async function getPage(slug) {
-  const apiUrl = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000"
-
   const res = await fetch(
-    `${apiUrl}/api/v1/status-pages/${slug}/public/`,
-    {
-      next: { revalidate: 30 },
-    }
+    `${API_URL}/api/v1/status-pages/${slug}/public/`,
+    { next: { revalidate: 30 } }
   )
-
   if (res.status === 404) return null
   if (!res.ok) throw new Error(`Failed to fetch status page: ${res.status}`)
-
   return res.json()
+}
+
+async function getUptimeBuckets(monitorId) {
+  try {
+    const res = await fetch(
+      `${API_URL}/api/v1/monitors/${monitorId}/uptime/?days=90`,
+      { next: { revalidate: 30 } }
+    )
+    if (!res.ok) return []
+    const data = await res.json()
+    return data.buckets ?? []
+  } catch {
+    return []
+  }
 }
 
 export async function generateMetadata({ params }) {
   const { slug } = await params
   const page     = await getPage(slug)
 
-  if (!page) {
-    return { title: "Status Page Not Found" }
-  }
+  if (!page) return { title: "Status Page Not Found" }
 
   return {
     title:       `${page.name} -- Status`,
@@ -39,5 +47,19 @@ export default async function PublicStatusPageRoute({ params }) {
 
   if (!page) notFound()
 
-  return <PublicStatusPage page={page} />
+  const monitorsWithUptime = await Promise.all(
+    (page.monitors ?? []).map(async monitor => {
+      if (!monitor.show_uptime_history) {
+        return { ...monitor, uptime_buckets: [] }
+      }
+      const buckets = await getUptimeBuckets(monitor.id)
+      return { ...monitor, uptime_buckets: buckets }
+    })
+  )
+
+  return (
+    <PublicStatusPage
+      page={{ ...page, monitors: monitorsWithUptime }}
+    />
+  )
 }

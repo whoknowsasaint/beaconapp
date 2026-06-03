@@ -4,6 +4,7 @@ export { monitors }     from "./monitors.js"
 export { incidents }    from "./incidents.js"
 export { statusPages }  from "./statusPages.js"
 export { apiKeys }      from "./apiKeys.js"
+export { uptime }       from "./uptime.js"
 export {
   BeaconAPIError,
   parseAPIError,

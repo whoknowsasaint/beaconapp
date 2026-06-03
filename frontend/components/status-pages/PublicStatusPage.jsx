@@ -76,16 +76,20 @@ function IncidentCard({ incident }) {
 
 function ServiceRow({ monitor }) {
   return (
-    <div className="flex items-center justify-between py-4 border-b border-beacon-border last:border-0">
+    <div className="flex items-start justify-between py-4 border-b border-beacon-border last:border-0 gap-4">
       <div className="flex-1 min-w-0">
-        <p className="text-sm font-medium text-beacon-text mb-1">
+        <p className="text-sm font-medium text-beacon-text mb-2">
           {monitor.name}
         </p>
-        {monitor.show_uptime_history && (
-          <UptimeBars days={[]} totalDays={90} className="max-w-md" />
+        {monitor.show_uptime_history && monitor.uptime_buckets && (
+          <UptimeBars
+            days={monitor.uptime_buckets}
+            totalDays={90}
+            className="max-w-lg"
+          />
         )}
       </div>
-      <div className="flex-shrink-0 ml-4">
+      <div className="flex-shrink-0 mt-0.5">
         <StatusBadge status={monitor.status} />
       </div>
     </div>
