@@ -1,73 +1,71 @@
-const FOOTER_LINKS = [
+"use client"
+
+const COLS = [
   {
     heading: "Product",
     links: [
-      { label: "Features",   href: "#features"  },
-      { label: "Dashboard",  href: "/login"      },
-      { label: "Status pages", href: "#scene-status-page" },
+      { label: "Features",      href: "#features"  },
+      { label: "Dashboard",     href: "/login"      },
+      { label: "Status pages",  href: "#features"  },
+      { label: "API",           href: "https://github.com/beacon", external: true },
     ],
   },
   {
-    heading: "Resources",
+    heading: "Developers",
     links: [
       { label: "Documentation", href: "https://github.com/beacon", external: true },
       { label: "GitHub",        href: "https://github.com/beacon", external: true },
       { label: "Changelog",     href: "https://github.com/beacon", external: true },
+      { label: "Self-hosting",  href: "https://github.com/beacon", external: true },
     ],
   },
   {
-    heading: "Self-host",
+    heading: "Company",
     links: [
-      { label: "Docker",       href: "https://github.com/beacon", external: true },
-      { label: "Environment",  href: "https://github.com/beacon", external: true },
-      { label: "Telegram bot", href: "https://github.com/beacon", external: true },
+      { label: "Open source",   href: "https://github.com/beacon", external: true },
+      { label: "MIT License",   href: "https://github.com/beacon", external: true },
     ],
   },
 ]
 
 export default function Footer() {
   return (
-    <footer
-      className="border-t border-beacon-border mt-32"
-      style={{ background: "var(--color-bg-elevated)" }}
-    >
-      <div className="max-w-5xl mx-auto px-6 py-16">
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-10 mb-16">
+    <footer style={{ borderTop: "1px solid rgba(255,255,255,0.07)", background: "#08090C" }}>
+      <div className="max-w-6xl mx-auto px-6 py-14">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-10 mb-12">
           <div>
-            <div className="flex items-center gap-2 mb-4">
-              <div className="h-6 w-6 rounded-md bg-beacon-blue flex items-center justify-center">
-                <div className="h-1.5 w-1.5 rounded-full bg-white" />
+            <div className="flex items-center gap-2 mb-3">
+              <div style={{ width: 22, height: 22, borderRadius: 6, background: "#3B82F6", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                <div style={{ width: 6, height: 6, borderRadius: "50%", background: "white" }} />
               </div>
-              <span className="text-sm font-semibold text-beacon-text">
-                Beacon
-              </span>
+              <span style={{ fontSize: 13, fontWeight: 600, color: "rgba(255,255,255,0.85)" }}>Beacon</span>
             </div>
-            <p className="text-xs text-beacon-text-faint leading-relaxed">
-              Free, self-hostable status pages and uptime monitoring.
+            <p style={{ fontSize: 12, color: "rgba(255,255,255,0.35)", lineHeight: 1.6 }}>
+              Free, open source uptime monitoring and status pages.
             </p>
           </div>
 
-          {FOOTER_LINKS.map(col => (
+          {COLS.map(col => (
             <div key={col.heading}>
-              <p className="text-xs font-medium text-beacon-text-faint uppercase tracking-wider mb-4">
+              <p style={{ fontSize: 11, fontWeight: 500, color: "rgba(255,255,255,0.3)", textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 12 }}>
                 {col.heading}
               </p>
-              <ul className="flex flex-col gap-2.5">
+              <ul className="flex flex-col gap-2">
                 {col.links.map(link => (
                   <li key={link.label}>
                     {link.external ? (
-                      <a
-                        href={link.href}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-sm text-beacon-text-muted hover:text-beacon-text transition-colors"
+                      <a href={link.href} target="_blank" rel="noopener noreferrer"
+                        style={{ fontSize: 13, color: "rgba(255,255,255,0.45)", transition: "color 0.15s" }}
+                        onMouseEnter={e => e.currentTarget.style.color = "rgba(255,255,255,0.75)"}
+                        onMouseLeave={e => e.currentTarget.style.color = "rgba(255,255,255,0.45)"}
                       >
                         {link.label}
                       </a>
                     ) : (
-                      <a
-                        href={link.href}
-                        className="text-sm text-beacon-text-muted hover:text-beacon-text transition-colors"
+                      <a href={link.href}
+                        style={{ fontSize: 13, color: "rgba(255,255,255,0.45)", transition: "color 0.15s" }}
+                        onMouseEnter={e => e.currentTarget.style.color = "rgba(255,255,255,0.75)"}
+                        onMouseLeave={e => e.currentTarget.style.color = "rgba(255,255,255,0.45)"}
                       >
                         {link.label}
                       </a>
@@ -79,12 +77,15 @@ export default function Footer() {
           ))}
         </div>
 
-        <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-8 border-t border-beacon-border">
-          <p className="text-xs text-beacon-text-faint">
-            Beacon is open source and free to self-host.
+        <div
+          className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-8"
+          style={{ borderTop: "1px solid rgba(255,255,255,0.06)" }}
+        >
+          <p style={{ fontSize: 12, color: "rgba(255,255,255,0.25)" }}>
+            Beacon is open source. MIT License.
           </p>
-          <p className="text-xs text-beacon-text-faint">
-            MIT License
+          <p style={{ fontSize: 12, color: "rgba(255,255,255,0.2)" }}>
+            Built with Next.js and Django.
           </p>
         </div>
       </div>

@@ -1,113 +1,12 @@
-import Navbar          from "@/components/landing/Navbar"
-import Hero            from "@/components/landing/Hero"
-import Footer          from "@/components/landing/Footer"
-import UptimeScene     from "@/components/scenes/UptimeScene"
-import IncidentScene   from "@/components/scenes/IncidentScene"
-import TelegramScene   from "@/components/scenes/TelegramScene"
-import SlackScene      from "@/components/scenes/SlackScene"
-import StatusPageScene from "@/components/scenes/StatusPageScene"
-import ReportingScene  from "@/components/scenes/ReportingScene"
-import APIScene        from "@/components/scenes/APIScene"
+"use client"
 
-const SCENE_SECTIONS = [
-  {
-    id:          "scene-uptime",
-    label:       "Uptime Monitoring",
-    description: "Watch every service 24/7. See exactly what is up, what is down, and for how long.",
-    tag:         "Always watching",
-    Scene:       UptimeScene,
-  },
-  {
-    id:          "scene-incident",
-    label:       "Incident Management",
-    description: "Structured workflow from detection to resolution. Keep your team and users informed at every step.",
-    tag:         "Structured response",
-    Scene:       IncidentScene,
-  },
-  {
-    id:          "scene-telegram",
-    label:       "Telegram Notifications",
-    description: "Subscribers get instant, beautiful Telegram messages the moment an incident starts or resolves.",
-    tag:         "Instant alerts",
-    Scene:       TelegramScene,
-  },
-  {
-    id:          "scene-slack",
-    label:       "Slack Notifications",
-    description: "Your ops team gets structured Slack alerts in the right channel with full context -- no noise, just signal.",
-    tag:         "Team awareness",
-    Scene:       SlackScene,
-  },
-  {
-    id:          "scene-status-page",
-    label:       "Public Status Pages",
-    description: "Give your customers a branded, live status page that builds trust before they ever email you.",
-    tag:         "Customer trust",
-    Scene:       StatusPageScene,
-  },
-  {
-    id:          "scene-reporting",
-    label:       "Historical Reporting",
-    description: "A complete picture of your reliability over time. Exportable, honest, and clear.",
-    tag:         "Full history",
-    Scene:       ReportingScene,
-  },
-  {
-    id:          "scene-api",
-    label:       "API & Integrations",
-    description: "Beacon has an API. Automate everything. It is built for developers.",
-    tag:         "Developer owned",
-    Scene:       APIScene,
-  },
-]
-
-function SectionLabel({ tag, label, description, flip = false }) {
-  return (
-    <div className={`flex flex-col gap-3 ${flip ? "lg:text-right" : ""}`}>
-      <div
-        className={`inline-flex items-center gap-1.5 ${flip ? "lg:self-end" : "self-start"}`}
-      >
-        <span className="text-2xs font-mono text-beacon-blue uppercase tracking-widest">
-          {tag}
-        </span>
-      </div>
-      <h2 className="text-2xl sm:text-3xl font-semibold text-beacon-text tracking-tight leading-tight">
-        {label}
-      </h2>
-      <p className="text-base text-beacon-text-muted leading-relaxed max-w-sm">
-        {description}
-      </p>
-    </div>
-  )
-}
-
-function FeatureSection({ id, label, description, tag, Scene, index }) {
-  const flip = index % 2 !== 0
-
-  return (
-    <section
-      id={id}
-      className="max-w-5xl mx-auto px-6 py-20"
-    >
-      <div
-        className={[
-          "grid grid-cols-1 gap-12 items-center",
-          flip
-            ? "lg:grid-cols-2 lg:[&>*:first-child]:order-2 lg:[&>*:last-child]:order-1"
-            : "lg:grid-cols-2",
-        ].join(" ")}
-      >
-        <SectionLabel
-          tag={tag}
-          label={label}
-          description={description}
-          flip={flip}
-        />
-        <Scene />
-      </div>
-    </section>
-  )
-}
+import Navbar           from "@/components/landing/Navbar"
+import Hero             from "@/components/landing/Hero"
+import StickySection    from "@/components/landing/StickySection"
+import IncidentStage    from "@/components/landing/IncidentStage"
+import StatusPageStage  from "@/components/landing/StatusPageStage"
+import TrustSection     from "@/components/landing/TrustSection"
+import Footer           from "@/components/landing/Footer"
 
 export default function LandingPage() {
   return (
@@ -117,75 +16,70 @@ export default function LandingPage() {
       <main>
         <Hero />
 
-        <div
-          id="features"
-          className="w-full max-w-5xl mx-auto px-6 h-px my-4"
-          style={{ background: "var(--color-border)" }}
-          aria-hidden="true"
-        />
+        <section
+          style={{
+            padding:    "0 0 80px",
+            background: "#080B10",
+          }}
+        >
+          <div style={{ textAlign: "center", padding: "0 24px 32px" }}>
+            <p style={{ fontSize: 11, fontFamily: "var(--font-mono)", color: "rgba(59,130,246,0.75)", textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: 10 }}>
+              The product
+            </p>
+            <h2 style={{ fontSize: 30, fontWeight: 600, color: "rgba(255,255,255,0.9)", letterSpacing: "-0.015em", marginBottom: 8 }}>
+              Your reliability dashboard.
+            </h2>
+            <p style={{ fontSize: 14, color: "rgba(255,255,255,0.4)", maxWidth: 420, margin: "0 auto" }}>
+              Scroll to explore every feature. The product is always visible.
+            </p>
+          </div>
 
-        {SCENE_SECTIONS.map((section, i) => (
-          <FeatureSection
-            key={section.id}
-            index={i}
-            {...section}
-          />
-        ))}
+          <StickySection />
+        </section>
 
-        <section className="max-w-5xl mx-auto px-6 py-24 text-center">
-          <div
-            className="rounded-2xl border border-beacon-border px-8 py-16"
-            style={{ background: "var(--color-bg-elevated)" }}
-          >
-            <div className="flex items-center justify-center gap-2 mb-6">
-              <span className="relative flex h-2.5 w-2.5">
-                <span className="animate-ping-ring absolute inline-flex h-full w-full rounded-full bg-beacon-green opacity-75" />
-                <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-beacon-green" />
-              </span>
-              <span className="text-xs font-mono text-beacon-green uppercase tracking-wider">
-                Open source
+        <IncidentStage />
+
+        <StatusPageStage />
+
+        <TrustSection />
+
+        <section style={{ padding: "64px 24px 80px", textAlign: "center", background: "#060809" }}>
+          <div style={{ maxWidth: 560, margin: "0 auto" }}>
+            <div style={{ display: "inline-flex", alignItems: "center", gap: 6, marginBottom: 20 }}>
+              <span style={{ width: 8, height: 8, borderRadius: "50%", background: "#22C55E", display: "inline-block", animation: "pulse-soft 2s ease-in-out infinite" }} aria-hidden="true" />
+              <span style={{ fontSize: 11, color: "rgba(34,197,94,0.75)", fontFamily: "var(--font-mono)", textTransform: "uppercase", letterSpacing: "0.1em" }}>
+                Ready to deploy
               </span>
             </div>
 
-            <h2 className="text-3xl sm:text-4xl font-semibold text-beacon-text tracking-tight mb-4">
-              Own your infrastructure.
+            <h2 style={{ fontSize: 36, fontWeight: 700, color: "rgba(255,255,255,0.92)", letterSpacing: "-0.02em", lineHeight: 1.12, marginBottom: 14 }}>
+              Own your monitoring.
               <br />
-              <span
-                className="text-transparent bg-clip-text"
-                style={{
-                  backgroundImage:
-                    "linear-gradient(135deg, #3B82F6 0%, #60A5FA 50%, #93C5FD 100%)",
-                }}
-              >
-                Own your status pages.
+              <span style={{ color: "rgba(255,255,255,0.35)" }}>
+                Own your uptime.
               </span>
             </h2>
 
-            <p className="text-base text-beacon-text-muted max-w-lg mx-auto mb-8 leading-relaxed">
-              Beacon is free, open source, and runs on your own servers.
-              No vendor lock-in. No pricing tiers. No limits.
+            <p style={{ fontSize: 15, color: "rgba(255,255,255,0.42)", lineHeight: 1.65, marginBottom: 28 }}>
+              No monthly fees. No data sent to third parties. Deploy Beacon on your own infrastructure in under five minutes.
             </p>
 
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 10 }}>
               <a
                 href="/login"
-                className={[
-                  "h-11 px-8 text-sm font-medium rounded-xl inline-flex items-center",
-                  "bg-beacon-blue text-white",
-                  "hover:bg-blue-500 transition-colors duration-150",
-                ].join(" ")}
+                style={{ height: 42, padding: "0 24px", fontSize: 13, fontWeight: 600, background: "#3B82F6", color: "white", borderRadius: 10, display: "inline-flex", alignItems: "center", textDecoration: "none", letterSpacing: "-0.01em" }}
+                onMouseEnter={e => e.currentTarget.style.background = "#2563EB"}
+                onMouseLeave={e => e.currentTarget.style.background = "#3B82F6"}
               >
-                Get started free
+                Start monitoring free
               </a>
               <a
                 href="https://github.com/beacon"
                 target="_blank"
                 rel="noopener noreferrer"
-                className={[
-                  "h-11 px-8 text-sm font-medium rounded-xl inline-flex items-center gap-2",
-                  "border border-beacon-border text-beacon-text-muted",
-                  "hover:bg-white/[0.06] hover:text-beacon-text transition-colors",
-                ].join(" ")}
+                style={{ height: 42, padding: "0 24px", fontSize: 13, fontWeight: 500, color: "rgba(255,255,255,0.55)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 10, display: "inline-flex", alignItems: "center", textDecoration: "none" }}
+                onMouseEnter={e => { e.currentTarget.style.background = "rgba(255,255,255,0.04)"; e.currentTarget.style.color = "rgba(255,255,255,0.8)" }}
+                onMouseLeave={e => { e.currentTarget.style.background = "transparent"; e.currentTarget.style.color = "rgba(255,255,255,0.55)" }}
               >
                 View on GitHub
               </a>

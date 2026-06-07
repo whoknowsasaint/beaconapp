@@ -4,33 +4,12 @@ import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { motion } from "framer-motion"
 
-const NAV_LINKS = [
-  { label: "Features",  href: "#features"  },
-  { label: "Docs",      href: "https://github.com/beacon", external: true },
-  { label: "GitHub",    href: "https://github.com/beacon", external: true },
-]
-
-function BeaconLogo() {
-  return (
-    <div className="flex items-center gap-2.5">
-      <div className="h-7 w-7 rounded-lg bg-beacon-blue flex items-center justify-center flex-shrink-0">
-        <div className="h-2 w-2 rounded-full bg-white" />
-      </div>
-      <span className="text-sm font-semibold text-beacon-text tracking-tight">
-        Beacon
-      </span>
-    </div>
-  )
-}
-
 export default function Navbar() {
-  const router    = useRouter()
+  const router     = useRouter()
   const [scrolled, setScrolled] = useState(false)
 
   useEffect(() => {
-    function onScroll() {
-      setScrolled(window.scrollY > 16)
-    }
+    function onScroll() { setScrolled(window.scrollY > 20) }
     window.addEventListener("scroll", onScroll, { passive: true })
     return () => window.removeEventListener("scroll", onScroll)
   }, [])
@@ -38,60 +17,76 @@ export default function Navbar() {
   return (
     <motion.header
       className="fixed top-0 left-0 right-0 z-40 flex justify-center px-4 pt-3"
-      initial={{ opacity: 0, y: -8 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+      initial={{ opacity: 0, y: -10 }}
+      animate={{ opacity: 1,  y: 0 }}
+      transition={{ duration: 0.35 }}
     >
       <nav
-        className={[
-          "w-full max-w-5xl flex items-center justify-between",
-          "h-12 px-4 rounded-xl border transition-all duration-300",
-          scrolled
-            ? "glass-panel border-beacon-border"
-            : "border-transparent bg-transparent",
-        ].join(" ")}
-        aria-label="Main navigation"
+        style={{
+          maxWidth:     960,
+          width:        "100%",
+          height:       46,
+          borderRadius: 12,
+          display:      "flex",
+          alignItems:   "center",
+          justifyContent: "space-between",
+          padding:      "0 14px",
+          transition:   "all 0.3s",
+          border:       scrolled ? "1px solid rgba(255,255,255,0.08)" : "1px solid transparent",
+          background:   scrolled ? "rgba(8,11,16,0.85)" : "transparent",
+          backdropFilter: scrolled ? "blur(16px)" : "none",
+        }}
       >
         <button
           onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
-          className="focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-beacon-blue rounded-lg"
-          aria-label="Beacon home"
+          style={{ display: "flex", alignItems: "center", gap: 8 }}
         >
-          <BeaconLogo />
+          <div style={{ width: 26, height: 26, borderRadius: 7, background: "#3B82F6", display: "flex", alignItems: "center", justifyContent: "center" }}>
+            <div style={{ width: 8, height: 8, borderRadius: "50%", background: "white" }} />
+          </div>
+          <span style={{ fontSize: 13, fontWeight: 600, color: "rgba(255,255,255,0.9)" }}>Beacon</span>
         </button>
 
         <div className="hidden sm:flex items-center gap-1">
-          {NAV_LINKS.map(link => (
+          {[
+            { label: "Features", href: "#features" },
+            { label: "Docs",     href: "https://github.com/beacon", external: true },
+            { label: "GitHub",   href: "https://github.com/beacon", external: true },
+          ].map(link =>
             link.external ? (
-              <a
-                key={link.label}
-                href={link.href}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="px-3 py-1.5 text-sm text-beacon-text-muted hover:text-beacon-text transition-colors rounded-lg hover:bg-white/[0.04]"
+              <a key={link.label} href={link.href} target="_blank" rel="noopener noreferrer"
+                style={{ padding: "5px 10px", fontSize: 13, color: "rgba(255,255,255,0.5)", borderRadius: 7, transition: "color 0.15s" }}
+                onMouseEnter={e => e.currentTarget.style.color = "rgba(255,255,255,0.85)"}
+                onMouseLeave={e => e.currentTarget.style.color = "rgba(255,255,255,0.5)"}
               >
                 {link.label}
               </a>
             ) : (
-              <a
-                key={link.label}
-                href={link.href}
-                className="px-3 py-1.5 text-sm text-beacon-text-muted hover:text-beacon-text transition-colors rounded-lg hover:bg-white/[0.04]"
+              <a key={link.label} href={link.href}
+                style={{ padding: "5px 10px", fontSize: 13, color: "rgba(255,255,255,0.5)", borderRadius: 7, transition: "color 0.15s" }}
+                onMouseEnter={e => e.currentTarget.style.color = "rgba(255,255,255,0.85)"}
+                onMouseLeave={e => e.currentTarget.style.color = "rgba(255,255,255,0.5)"}
               >
                 {link.label}
               </a>
             )
-          ))}
+          )}
         </div>
 
         <button
           onClick={() => router.push("/login")}
-          className={[
-            "h-8 px-4 text-sm font-medium rounded-lg transition-colors duration-150",
-            "bg-beacon-blue text-white",
-            "hover:bg-blue-500",
-            "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-beacon-blue",
-          ].join(" ")}
+          style={{
+            height:       32,
+            padding:      "0 14px",
+            fontSize:     12,
+            fontWeight:   500,
+            borderRadius: 8,
+            background:   "#3B82F6",
+            color:        "white",
+            transition:   "background 0.15s",
+          }}
+          onMouseEnter={e => e.currentTarget.style.background = "#2563EB"}
+          onMouseLeave={e => e.currentTarget.style.background = "#3B82F6"}
         >
           Get started
         </button>
