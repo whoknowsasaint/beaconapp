@@ -87,10 +87,8 @@ def _send_telegram(subscriber, incident, page, event_type):
 
 
 def _send_email(subscriber, incident, page, event_type):
-    logger.info(
-        "Email notification queued (not yet implemented): %s",
-        subscriber.email,
-    )
+    from .email import _send_email as send
+    send(subscriber, incident, page, event_type)
 
 
 def _dispatch_slack(incident, page, event_type):

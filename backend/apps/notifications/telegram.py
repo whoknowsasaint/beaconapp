@@ -99,3 +99,17 @@ def _escape(text):
         .replace("<", "&lt;")
         .replace(">", "&gt;")
     )
+
+def _post_to_chat(chat_id: str, html_text: str) -> None:
+    """
+    Send a raw HTML message to a specific Telegram chat ID.
+    Used by the bot webhook for confirmation/reply messages.
+    """
+    token = get_bot_token()
+    if not token:
+        logger.warning("TELEGRAM_BOT_TOKEN not configured -- cannot reply to chat.")
+        return
+    try:
+        _send_message(token, str(chat_id), html_text)
+    except Exception as exc:
+        logger.error("Failed to send bot reply to chat %s: %s", chat_id, exc)    

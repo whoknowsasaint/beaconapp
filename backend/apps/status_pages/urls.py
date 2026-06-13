@@ -4,6 +4,8 @@ from .views import (
     StatusPageDetailView,
     StatusPageMonitorView,
     PublicStatusPageView,
+    PublicStatusPageUptimeView,
+    PublicUnsubscribeView,
     SubscribeView,
     UnsubscribeView,
 )
@@ -35,6 +37,11 @@ urlpatterns = [
         name="statuspage-public",
     ),
     path(
+        "<slug:slug>/uptime/",
+        PublicStatusPageUptimeView.as_view(),
+        name="statuspage-public-uptime",
+    ),
+    path(
         "<slug:slug>/subscribe/",
         SubscribeView.as_view(),
         name="statuspage-subscribe",
@@ -43,5 +50,10 @@ urlpatterns = [
         "<slug:slug>/unsubscribe/<uuid:token>/",
         UnsubscribeView.as_view(),
         name="statuspage-unsubscribe",
+    ),
+    path(
+        "<slug:slug>/unsubscribe/",
+        PublicUnsubscribeView.as_view(),
+        name="statuspage-unsubscribe-token",
     ),
 ]

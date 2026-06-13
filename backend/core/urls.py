@@ -13,6 +13,7 @@ urlpatterns = [
     path("api/v1/monitors/",     include("apps.monitors.urls")),
     path("api/v1/incidents/",    include("apps.incidents.urls")),
     path("api/v1/status-pages/", include("apps.status_pages.urls")),
+    path("api/v1/telegram/",     include("apps.notifications.urls")),
 ]
 
 if settings.DEBUG:

@@ -338,3 +338,100 @@ class UnsubscribeView(APIView):
             {"detail": "Unsubscribed successfully."},
             status=status.HTTP_200_OK,
         )
+
+
+class PublicStatusPageUptimeView(APIView):
+    """
+    GET /api/v1/status-pages/{slug}/uptime/?days=90
+
+    No authentication required. Rate limited.
+    Returns 90-day daily uptime buckets for every monitor
+    on a public status page in a single call.
+
+    Called by the public status page frontend (LiveStatusPage.jsx).
+    Replaces the per-monitor authenticated endpoint for public use.
+    """
+
+    permission_classes     = [AllowAny]
+    authentication_classes = []
+    throttle_classes       = [PublicStatusPageThrottle]
+
+    def get(self, request, slug):
+        try:
+            page = StatusPage.objects.prefetch_related(
+                "monitors__monitor",
+            ).get(slug=slug, is_public=True)
+        except StatusPage.DoesNotExist:
+            return Response(
+                {
+                    "error":   "not_found",
+                    "message": "Status page not found.",
+                    "fields":  None,
+                },
+                status=status.HTTP_404_NOT_FOUND,
+            )
+
+        try:
+            days = max(1, min(90, int(request.query_params.get("days", 90))))
+        except (TypeError, ValueError):
+            days = 90
+
+        from apps.monitors.uptime import get_daily_uptime
+
+        monitors_uptime = []
+        for entry in page.monitors.select_related("monitor").order_by("display_order", "created_at"):
+            monitor = entry.monitor
+            buckets = get_daily_uptime(monitor.id, days)
+            monitors_uptime.append({
+                "id":                  str(monitor.id),
+                "name":                entry.public_name,
+                "status":              monitor.status,
+                "show_uptime_history": entry.show_uptime_history,
+                "buckets":             buckets,
+            })
+
+        return Response({
+            "slug":     slug,
+            "days":     days,
+            "monitors": monitors_uptime,
+        })
+
+
+class PublicUnsubscribeView(APIView):
+    """
+    GET /api/v1/status-pages/{slug}/unsubscribe/?token={uuid}
+
+    Token-based one-click unsubscribe. No auth required.
+    Returns a simple JSON response suitable for redirect handling.
+    """
+
+    permission_classes     = [AllowAny]
+    authentication_classes = []
+
+    def get(self, request, slug):
+        token = request.query_params.get("token", "")
+
+        if not token:
+            return Response(
+                {"error": "validation", "message": "Token is required.", "fields": None},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        try:
+            subscriber = Subscriber.objects.get(
+                status_page__slug=slug,
+                unsubscribe_token=token,
+                is_active=True,
+            )
+        except Subscriber.DoesNotExist:
+            return Response(
+                {
+                    "error":   "not_found",
+                    "message": "Subscription not found or already cancelled.",
+                    "fields":  None,
+                },
+                status=status.HTTP_404_NOT_FOUND,
+            )
+
+        subscriber.unsubscribe()
+        return Response({"detail": "Unsubscribed successfully."})        
