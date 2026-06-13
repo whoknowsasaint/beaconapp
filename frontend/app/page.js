@@ -80,7 +80,7 @@ export default function LandingPage() {
                 Start monitoring free
               </a>
               <a
-                href="https://github.com/beacon"
+                href="https://github.com/whoknowsasaint/beaconapp"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="h-10 px-6 text-sm font-medium rounded-lg inline-flex items-center gap-2 transition-colors duration-150"

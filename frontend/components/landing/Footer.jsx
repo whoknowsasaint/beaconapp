@@ -7,23 +7,23 @@ const COLS = [
       { label: "Features",      href: "#features"  },
       { label: "Dashboard",     href: "/login"      },
       { label: "Status pages",  href: "#features"  },
-      { label: "API",           href: "https://github.com/beacon", external: true },
+      { label: "API",           href: "https://github.com/whoknowsasaint/beaconapp", external: true },
     ],
   },
   {
     heading: "Developers",
     links: [
-      { label: "Documentation", href: "https://github.com/beacon", external: true },
-      { label: "GitHub",        href: "https://github.com/beacon", external: true },
-      { label: "Changelog",     href: "https://github.com/beacon", external: true },
-      { label: "Self-hosting",  href: "https://github.com/beacon", external: true },
+      { label: "Documentation", href: "https://github.com/whoknowsasaint/beaconapp", external: true },
+      { label: "GitHub",        href: "https://github.com/whoknowsasaint/beaconapp", external: true },
+      { label: "Changelog",     href: "https://github.com/whoknowsasaint/beaconapp", external: true },
+      { label: "Self-hosting",  href: "https://github.com/whoknowsasaint/beaconapp", external: true },
     ],
   },
   {
     heading: "Company",
     links: [
-      { label: "Open source",   href: "https://github.com/beacon", external: true },
-      { label: "MIT License",   href: "https://github.com/beacon", external: true },
+      { label: "Open source",   href: "https://github.com/whoknowsasaint/beaconapp", external: true },
+      { label: "MIT License",   href: "https://github.com/whoknowsasaint/beaconapp", external: true },
     ],
   },
 ]

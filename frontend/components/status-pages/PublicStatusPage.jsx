@@ -205,7 +205,7 @@ export default function PublicStatusPage({ page }) {
             <p className="text-xs text-beacon-text-faint">
               Powered by{" "}
               <a
-                href="https://github.com/beacon"
+                href="https://github.com/whoknowsasaint/beaconapp"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="hover:text-beacon-text-muted transition-colors"

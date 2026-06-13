@@ -92,7 +92,7 @@ export default function Hero() {
             Start monitoring free
           </button>
           <a
-            href="https://github.com/beacon"
+            href="https://github.com/whoknowsasaint/beaconapp"
             target="_blank"
             rel="noopener noreferrer"
             style={{ height: 40, padding: "0 20px", fontSize: 13, fontWeight: 500, color: "rgba(255,255,255,0.6)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 9, display: "inline-flex", alignItems: "center", gap: 7, textDecoration: "none" }}
