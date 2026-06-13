@@ -224,3 +224,212 @@ body {
   outline-offset: 2px;
   border-radius: 4px;
 }
+/*
+ * Beacon Landing Page — Design System Additions
+ * Add to: frontend/app/globals.css (or import in layout.js)
+ *
+ * This file handles:
+ * 1. Background zone lighting (asymmetric, compositional — not centered AI glows)
+ * 2. Section transitions and separators
+ * 3. Landing-specific type refinements
+ * 4. Mobile viewport fixes
+ */
+
+/* ─────────────────────────────────────────────────────────
+   1. PAGE-LEVEL BACKGROUND ZONES
+   The page is NOT flat dark everywhere.
+   Each zone has its own subtle light temperature.
+   These are position: fixed pseudo-elements on the body
+   so they don't interfere with scroll performance.
+   ───────────────────────────────────────────────────────── */
+
+/* Applied to the landing page root via page.js wrapper div */
+.landing-bg {
+  position: relative;
+  background: #080B10;
+}
+
+/* Hero zone — a very faint top-left warm zone.
+   Asymmetric. Not centered. Creates a visual anchor
+   for the headline without "AI slop" circular glow. */
+.landing-bg::before {
+  content: '';
+  position: fixed;
+  top: -200px;
+  left: -100px;
+  width: 700px;
+  height: 600px;
+  background: radial-gradient(
+    ellipse at 30% 30%,
+    rgba(59, 130, 246, 0.06) 0%,
+    rgba(59, 130, 246, 0.02) 40%,
+    transparent 70%
+  );
+  pointer-events: none;
+  z-index: 0;
+  /* GPU composited — zero repaint cost */
+  will-change: transform;
+}
+
+/* Bottom-right zone — subtle depth for bento/demo sections */
+.landing-bg::after {
+  content: '';
+  position: fixed;
+  bottom: -100px;
+  right: -100px;
+  width: 500px;
+  height: 400px;
+  background: radial-gradient(
+    ellipse at 70% 70%,
+    rgba(99, 102, 241, 0.04) 0%,
+    transparent 65%
+  );
+  pointer-events: none;
+  z-index: 0;
+  will-change: transform;
+}
+
+/* ─────────────────────────────────────────────────────────
+   2. SECTION SEPARATORS
+   Thin, fading horizontal lines between sections.
+   Not full-width — they fade at the edges for refinement.
+   ───────────────────────────────────────────────────────── */
+.section-sep {
+  position: relative;
+  height: 1px;
+  margin: 0 auto;
+  max-width: 900px;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.06) 20%,
+    rgba(255, 255, 255, 0.06) 80%,
+    transparent 100%
+  );
+}
+
+/* ─────────────────────────────────────────────────────────
+   3. BENTO SECTION BACKGROUND ZONE
+   The bento section gets a very slight elevated background
+   to create visual section differentiation.
+   Not a solid block — fades at edges.
+   ───────────────────────────────────────────────────────── */
+.section-bento-bg {
+  position: relative;
+}
+
+.section-bento-bg::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: rgba(255, 255, 255, 0.012);
+  pointer-events: none;
+}
+
+/* ─────────────────────────────────────────────────────────
+   4. TYPOGRAPHY REFINEMENTS
+   These override any defaults that cause the
+   "AI-generated" flatness.
+   ───────────────────────────────────────────────────────── */
+
+/* Eyebrow labels — consistent treatment */
+.eyebrow {
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+  color: rgba(59, 130, 246, 0.65);
+  font-family: var(--font-mono, 'JetBrains Mono', monospace);
+}
+
+/* Section title — sharp, tight */
+.section-title {
+  font-size: clamp(28px, 3.5vw, 40px);
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  line-height: 1.15;
+  color: rgba(255, 255, 255, 0.92);
+}
+
+/* Section subtitle */
+.section-subtitle {
+  font-size: 16px;
+  color: rgba(255, 255, 255, 0.38);
+  line-height: 1.65;
+}
+
+/* ─────────────────────────────────────────────────────────
+   5. MOBILE VIEWPORT FIXES
+   Prevents horizontal overflow that causes cramping.
+   ───────────────────────────────────────────────────────── */
+html, body {
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Landing page sections — consistent horizontal padding */
+.landing-section {
+  padding-left: 24px;
+  padding-right: 24px;
+}
+
+@media (max-width: 640px) {
+  .landing-section {
+    padding-left: 16px;
+    padding-right: 16px;
+  }
+}
+
+/* ─────────────────────────────────────────────────────────
+   6. GLASS PANEL REFINEMENT
+   Adds top-edge highlight that was missing.
+   Applied to elements that use the .glass-panel class.
+   ───────────────────────────────────────────────────────── */
+.glass-panel {
+  background: rgba(255, 255, 255, 0.04);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow:
+    0 24px 80px rgba(0, 0, 0, 0.6),
+    inset 0 1px 0 rgba(255, 255, 255, 0.06); /* top highlight — the thing that makes glass feel real */
+  border-radius: 12px;
+}
+
+/* ─────────────────────────────────────────────────────────
+   7. FOCUS STATES — overrides default ugly outline
+   ───────────────────────────────────────────────────────── */
+:focus-visible {
+  outline: 2px solid rgba(59, 130, 246, 0.5);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* ─────────────────────────────────────────────────────────
+   8. SELECTION COLOR
+   ───────────────────────────────────────────────────────── */
+::selection {
+  background: rgba(59, 130, 246, 0.25);
+  color: rgba(255, 255, 255, 0.95);
+}
+
+/* ─────────────────────────────────────────────────────────
+   9. SCROLLBAR — minimal, on-brand
+   ───────────────────────────────────────────────────────── */
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.18);
+}

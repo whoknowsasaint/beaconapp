@@ -11,32 +11,38 @@ const API_URL =
     : "http://localhost:8000"
 
 async function fetchPageData(slug) {
-  const res = await fetch(`${API_URL}/api/v1/status-pages/${slug}/public/`, {
-    cache: "no-store",
-  })
+  const res = await fetch(
+    `${API_URL}/api/v1/status-pages/${slug}/public/`,
+    { cache: "no-store" }
+  )
   if (!res.ok) return null
   const page = await res.json()
 
-  const monitorsWithUptime = await Promise.all(
-    (page.monitors ?? []).map(async monitor => {
-      if (!monitor.show_uptime_history) {
-        return { ...monitor, uptime_buckets: [] }
+  // Fetch public uptime in a single call instead of per-monitor
+  try {
+    const uptimeRes = await fetch(
+      `${API_URL}/api/v1/status-pages/${slug}/uptime/?days=90`,
+      { cache: "no-store" }
+    )
+    if (uptimeRes.ok) {
+      const uptimeData = await uptimeRes.json()
+      const uptimeMap  = {}
+      for (const mon of uptimeData.monitors ?? []) {
+        uptimeMap[mon.id] = mon.buckets ?? []
       }
-      try {
-        const uptimeRes = await fetch(
-          `${API_URL}/api/v1/monitors/${monitor.id}/uptime/?days=90`,
-          { cache: "no-store" }
-        )
-        if (!uptimeRes.ok) return { ...monitor, uptime_buckets: [] }
-        const uptimeData = await uptimeRes.json()
-        return { ...monitor, uptime_buckets: uptimeData.buckets ?? [] }
-      } catch {
-        return { ...monitor, uptime_buckets: [] }
-      }
-    })
-  )
+      const monitorsWithUptime = (page.monitors ?? []).map(monitor => ({
+        ...monitor,
+        uptime_buckets: monitor.show_uptime_history
+          ? (uptimeMap[monitor.id] ?? [])
+          : [],
+      }))
+      return { ...page, monitors: monitorsWithUptime }
+    }
+  } catch {
+    // Fall through to returning page without uptime data
+  }
 
-  return { ...page, monitors: monitorsWithUptime }
+  return page
 }
 
 function LastUpdated({ lastUpdated }) {

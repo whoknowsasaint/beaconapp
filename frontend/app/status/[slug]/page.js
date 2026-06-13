@@ -15,26 +15,28 @@ async function getPage(slug) {
   return res.json()
 }
 
-async function getUptimeBuckets(monitorId) {
+async function getPublicUptime(slug) {
   try {
     const res = await fetch(
-      `${API_URL}/api/v1/monitors/${monitorId}/uptime/?days=90`,
+      `${API_URL}/api/v1/status-pages/${slug}/uptime/?days=90`,
       { next: { revalidate: 30 } }
     )
-    if (!res.ok) return []
+    if (!res.ok) return {}
     const data = await res.json()
-    return data.buckets ?? []
+    const map  = {}
+    for (const mon of data.monitors ?? []) {
+      map[mon.id] = mon.buckets ?? []
+    }
+    return map
   } catch {
-    return []
+    return {}
   }
 }
 
 export async function generateMetadata({ params }) {
   const { slug } = await params
   const page     = await getPage(slug)
-
   if (!page) return { title: "Status Page Not Found" }
-
   return {
     title:       `${page.name} -- Status`,
     description: page.description || `Current status of ${page.name} services.`,
@@ -44,25 +46,18 @@ export async function generateMetadata({ params }) {
 export default async function PublicStatusPageRoute({ params }) {
   const { slug } = await params
   const page     = await getPage(slug)
-
   if (!page) notFound()
 
-  const monitorsWithUptime = await Promise.all(
-    (page.monitors ?? []).map(async monitor => {
-      if (!monitor.show_uptime_history) {
-        return { ...monitor, uptime_buckets: [] }
-      }
-      const buckets = await getUptimeBuckets(monitor.id)
-      return { ...monitor, uptime_buckets: buckets }
-    })
-  )
+  const uptimeMap = await getPublicUptime(slug)
+
+  const monitorsWithUptime = (page.monitors ?? []).map(monitor => ({
+    ...monitor,
+    uptime_buckets: monitor.show_uptime_history
+      ? (uptimeMap[monitor.id] ?? [])
+      : [],
+  }))
 
   const initialPage = { ...page, monitors: monitorsWithUptime }
 
-  return (
-    <LiveStatusPage
-      initialPage={initialPage}
-      slug={slug}
-    />
-  )
+  return <LiveStatusPage initialPage={initialPage} slug={slug} />
 }
