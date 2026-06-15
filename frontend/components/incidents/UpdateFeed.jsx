@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect, useCallback } from "react"
+import { useState, useEffect, useCallback, useRef } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { incidents as incidentsAPI } from "@/lib/api/index.js"
 import { isBeaconAPIError } from "@/lib/api/index.js"
@@ -63,6 +63,7 @@ export default function UpdateFeed({ incident, onIncidentChange }) {
   const [message,  setMessage]  = useState("")
   const [posting,  setPosting]  = useState(false)
   const [isPublic, setIsPublic] = useState(true)
+  const textareaRef = useRef(null)
 
   const loadUpdates = useCallback(async () => {
     try {
@@ -79,16 +80,21 @@ export default function UpdateFeed({ incident, onIncidentChange }) {
 
   async function handlePost(e) {
     e.preventDefault()
-    if (!message.trim()) return
+    const trimmed = message.trim()
+    if (!trimmed) return
 
     setPosting(true)
     try {
       const update = await incidentsAPI.postUpdate(incident.id, {
-        message:   message.trim(),
+        message:   trimmed,
         is_public: isPublic,
       })
+      // Prepend the new update to the list
       setUpdates(prev => [update, ...prev])
+      // Clear the textarea state and DOM
       setMessage("")
+      if (textareaRef.current) textareaRef.current.value = ""
+      // Show success toast
       toast("Update posted.", "success")
     } catch (err) {
       toast(
@@ -105,6 +111,7 @@ export default function UpdateFeed({ incident, onIncidentChange }) {
       {!incident.is_resolved && (
         <form onSubmit={handlePost} noValidate className="mb-6">
           <textarea
+            ref={textareaRef}
             value={message}
             onChange={e => setMessage(e.target.value)}
             placeholder="What's the current status? What actions are being taken?"

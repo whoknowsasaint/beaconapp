@@ -2,20 +2,19 @@
 
 import { useState, useEffect, useCallback } from "react"
 import { useRouter } from "next/navigation"
-import { monitors as monitorsAPI } from "@/lib/api/index.js"
+import { incidents as incidentsAPI } from "@/lib/api/index.js"
 import { isBeaconAPIError } from "@/lib/api/index.js"
+import { toast } from "@/lib/useToast.js"
 import PageHeader from "@/components/ui/PageHeader"
 import Button from "@/components/ui/Button"
 import DataTable from "@/components/ui/DataTable"
 import StatusBadge from "@/components/ui/StatusBadge"
 import Modal from "@/components/ui/Modal"
 import ConfirmDialog from "@/components/ui/ConfirmDialog"
-import MonitorForm from "@/components/monitors/MonitorForm"
-import { toast } from "@/lib/useToast.js"
-import usePolling from "@/lib/usePolling.js"
+import IncidentForm from "@/components/incidents/IncidentForm"
 
 function formatDate(str) {
-  if (!str) return "Never"
+  if (!str) return "--"
   return new Date(str).toLocaleString("en-US", {
     month:  "short",
     day:    "numeric",
@@ -24,57 +23,66 @@ function formatDate(str) {
   })
 }
 
-function formatInterval(seconds) {
-  if (seconds < 60)   return `${seconds}s`
-  if (seconds < 3600) return `${seconds / 60}m`
-  return `${seconds / 3600}h`
+function formatDuration(seconds) {
+  if (seconds == null) return "--"
+  const h = Math.floor(seconds / 3600)
+  const m = Math.floor((seconds % 3600) / 60)
+  if (h > 0) return `${h}h ${m}m`
+  return `${m}m`
 }
 
-export default function MonitorsPage() {
+const SEVERITY_COLORS = {
+  critical: "text-beacon-red",
+  major:    "text-beacon-amber",
+  minor:    "text-beacon-blue",
+  notice:   "text-beacon-text-muted",
+}
+
+export default function IncidentsPage() {
   const router = useRouter()
 
-  const [data,          setData]          = useState(null)
-  const [loading,       setLoading]       = useState(true)
-  const [createOpen,    setCreateOpen]    = useState(false)
-  const [deleteTarget,  setDeleteTarget]  = useState(null)
-  const [search,        setSearch]        = useState("")
-  const [statusFilter,  setStatusFilter]  = useState("")
+  const [data,         setData]         = useState(null)
+  const [loading,      setLoading]      = useState(true)
+  const [createOpen,   setCreateOpen]   = useState(false)
+  const [deleteTarget, setDeleteTarget] = useState(null)
+  const [statusFilter, setStatusFilter] = useState("")
+  const [sevFilter,    setSevFilter]    = useState("")
 
   const load = useCallback(async () => {
     setLoading(true)
     try {
       const params = {}
-      if (search)       params.search = search
-      if (statusFilter) params.status = statusFilter
-      const res = await monitorsAPI.list(params)
+      if (statusFilter) params.status   = statusFilter
+      if (sevFilter)    params.severity = sevFilter
+      const res = await incidentsAPI.list(params)
       setData(res)
     } catch (err) {
       toast(
-        isBeaconAPIError(err) ? err.message : "Failed to load monitors.",
+        isBeaconAPIError(err) ? err.message : "Failed to load incidents.",
         "error",
       )
     } finally {
       setLoading(false)
     }
-  }, [search, statusFilter])
+  }, [statusFilter, sevFilter])
 
-  usePolling(load, 30000)
+  useEffect(() => { load() }, [load])
 
   async function handleDelete() {
     if (!deleteTarget) return
-    await monitorsAPI.delete(deleteTarget.id)
-    toast("Monitor deleted.", "success")
+    await incidentsAPI.delete(deleteTarget.id)
+    toast("Incident deleted.", "success")
     setDeleteTarget(null)
     load()
   }
 
   const COLUMNS = [
     {
-      key:   "name",
-      label: "Name",
+      key:   "title",
+      label: "Title",
       render: (val, row) => (
         <button
-          onClick={() => router.push(`/dashboard/monitors/${row.id}`)}
+          onClick={() => router.push(`/dashboard/incidents/${row.id}`)}
           className="font-medium text-beacon-text hover:text-beacon-blue transition-colors text-left"
         >
           {val}
@@ -82,32 +90,34 @@ export default function MonitorsPage() {
       ),
     },
     {
-      key:   "status",
-      label: "Status",
-      width: "130px",
-      render: val => <StatusBadge status={val} />,
-    },
-    {
-      key:   "monitor_type_display",
-      label: "Type",
-      width: "110px",
+      key:   "severity",
+      label: "Severity",
+      width: "100px",
       render: val => (
-        <span className="text-xs text-beacon-text-muted">{val}</span>
-      ),
-    },
-    {
-      key:   "interval",
-      label: "Interval",
-      width: "90px",
-      render: val => (
-        <span className="text-xs font-mono text-beacon-text-muted">
-          {formatInterval(val)}
+        <span className={`text-xs font-medium capitalize ${SEVERITY_COLORS[val] ?? ""}`}>
+          {val}
         </span>
       ),
     },
     {
-      key:   "last_checked_at",
-      label: "Last check",
+      key:   "status",
+      label: "Status",
+      width: "140px",
+      render: val => <StatusBadge status={val} />,
+    },
+    {
+      key:   "duration_seconds",
+      label: "Duration",
+      width: "90px",
+      render: val => (
+        <span className="text-xs font-mono text-beacon-text-muted">
+          {formatDuration(val)}
+        </span>
+      ),
+    },
+    {
+      key:   "started_at",
+      label: "Started",
       width: "150px",
       render: val => (
         <span className="text-xs text-beacon-text-faint">{formatDate(val)}</span>
@@ -122,7 +132,7 @@ export default function MonitorsPage() {
           <Button
             variant="ghost"
             size="sm"
-            onClick={() => router.push(`/dashboard/monitors/${row.id}`)}
+            onClick={() => router.push(`/dashboard/incidents/${row.id}`)}
           >
             View
           </Button>
@@ -142,10 +152,10 @@ export default function MonitorsPage() {
   return (
     <div className="flex-1 px-8 py-8">
       <PageHeader
-        title="Monitors"
+        title="Incidents"
         description={
           data
-            ? `${data.count} monitor${data.count !== 1 ? "s" : ""}`
+            ? `${data.count} incident${data.count !== 1 ? "s" : ""}`
             : "Loading..."
         }
         action={
@@ -154,30 +164,34 @@ export default function MonitorsPage() {
             size="sm"
             onClick={() => setCreateOpen(true)}
           >
-            Add monitor
+            Create incident
           </Button>
         }
       />
 
       <div className="flex gap-3 mb-5">
-        <input
-          type="search"
-          placeholder="Search monitors..."
-          value={search}
-          onChange={e => setSearch(e.target.value)}
-          className="h-9 rounded-lg px-3 text-sm bg-white/[0.04] border border-beacon-border text-beacon-text placeholder:text-beacon-text-faint focus:outline-none focus:border-beacon-blue focus:ring-1 focus:ring-beacon-blue transition-colors w-64"
-        />
         <select
           value={statusFilter}
           onChange={e => setStatusFilter(e.target.value)}
           className="h-9 rounded-lg px-3 text-sm bg-white/[0.04] border border-beacon-border text-beacon-text focus:outline-none focus:border-beacon-blue transition-colors"
         >
           <option value="">All statuses</option>
-          <option value="operational">Operational</option>
-          <option value="degraded">Degraded</option>
-          <option value="outage">Outage</option>
-          <option value="paused">Paused</option>
-          <option value="pending">Pending</option>
+          <option value="investigating">Investigating</option>
+          <option value="identified">Identified</option>
+          <option value="monitoring">Monitoring</option>
+          <option value="resolved">Resolved</option>
+        </select>
+
+        <select
+          value={sevFilter}
+          onChange={e => setSevFilter(e.target.value)}
+          className="h-9 rounded-lg px-3 text-sm bg-white/[0.04] border border-beacon-border text-beacon-text focus:outline-none focus:border-beacon-blue transition-colors"
+        >
+          <option value="">All severities</option>
+          <option value="critical">Critical</option>
+          <option value="major">Major</option>
+          <option value="minor">Minor</option>
+          <option value="notice">Notice</option>
         </select>
       </div>
 
@@ -186,10 +200,10 @@ export default function MonitorsPage() {
         rows={data?.results ?? []}
         loading={loading}
         keyField="id"
-        emptyTitle="No monitors yet"
-        emptyDescription="Add your first monitor to start tracking uptime."
+        emptyTitle="No incidents"
+        emptyDescription="Incidents appear here when created manually or triggered by monitor failures."
         emptyAction={{
-          label:   "Add monitor",
+          label:   "Create incident",
           onClick: () => setCreateOpen(true),
         }}
       />
@@ -197,10 +211,10 @@ export default function MonitorsPage() {
       <Modal
         open={createOpen}
         onClose={() => setCreateOpen(false)}
-        title="Add monitor"
+        title="Create incident"
         size="md"
       >
-        <MonitorForm
+        <IncidentForm
           onSuccess={() => {
             setCreateOpen(false)
             load()
@@ -213,11 +227,12 @@ export default function MonitorsPage() {
         open={Boolean(deleteTarget)}
         onClose={() => setDeleteTarget(null)}
         onConfirm={handleDelete}
-        title="Delete monitor"
-        description={`Delete "${deleteTarget?.name}"? This will permanently remove all check history.`}
-        confirmLabel="Delete monitor"
+        title="Delete incident"
+        description={`Delete "${deleteTarget?.title}"? All updates and history will be permanently removed.`}
+        confirmLabel="Delete incident"
         variant="danger"
       />
     </div>
   )
 }
+

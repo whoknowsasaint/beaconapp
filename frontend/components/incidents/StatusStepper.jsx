@@ -15,10 +15,10 @@ const STEPS = [
 const STEP_INDEX = Object.fromEntries(STEPS.map((s, i) => [s.value, i]))
 
 const COLORS = {
-  investigating: "var(--color-red)",
-  identified:    "var(--color-amber)",
-  monitoring:    "var(--color-blue)",
-  resolved:      "var(--color-green)",
+  investigating: { full: "#EF4444", faint: "rgba(239,68,68,0.125)" },
+  identified:    { full: "#F59E0B", faint: "rgba(245,158,11,0.125)" },
+  monitoring:    { full: "#3B82F6", faint: "rgba(59,130,246,0.125)" },
+  resolved:      { full: "#22C55E", faint: "rgba(34,197,94,0.125)" },
 }
 
 export default function StatusStepper({ incident, onUpdate }) {
@@ -26,8 +26,9 @@ export default function StatusStepper({ incident, onUpdate }) {
   const currentIdx = STEP_INDEX[incident.status] ?? 0
 
   async function advance(step) {
+    // Prevent clicking on current or past steps
     if (step.value === incident.status) return
-    if (STEP_INDEX[step.value] < currentIdx)  return
+    if (STEP_INDEX[step.value] <= currentIdx) return
 
     setLoading(true)
     try {
@@ -51,28 +52,35 @@ export default function StatusStepper({ incident, onUpdate }) {
         const isDone    = idx < currentIdx
         const isActive  = idx === currentIdx
         const isFuture  = idx > currentIdx
+        const isNext    = idx === currentIdx + 1   // the only clickable step
         const isLast    = idx === STEPS.length - 1
+        const stepColor = COLORS[step.value]
+
+        // Only the immediate next step is clickable and not disabled
+        const isClickable = isNext && !incident.is_resolved
+        const disabled = loading || !isClickable || incident.is_resolved
 
         return (
           <div key={step.value} className="flex items-center flex-1 last:flex-none">
             <button
-              onClick={() => advance(step)}
-              disabled={loading || isFuture || incident.is_resolved}
+              onClick={() => isClickable && advance(step)}
+              disabled={disabled}
               className={[
-                "flex flex-col items-center gap-1.5 group disabled:cursor-default",
-                isFuture ? "opacity-40" : "",
+                "flex flex-col items-center gap-1.5 group",
+                (idx > currentIdx + 1) ? "opacity-40" : "",
+                isClickable ? "cursor-pointer" : "cursor-default",
               ].join(" ")}
               aria-current={isActive ? "step" : undefined}
-              title={isFuture ? "Advance status to reach this step" : step.label}
+              title={isClickable ? `Mark as ${step.label}` : step.label}
             >
               <motion.div
                 className="h-7 w-7 rounded-full border-2 flex items-center justify-center flex-shrink-0"
                 animate={{
-                  borderColor: isActive || isDone ? activeColor : "rgba(255,255,255,0.12)",
+                  borderColor: isActive || isDone ? stepColor.full : "rgba(255,255,255,0.12)",
                   backgroundColor: isDone
-                    ? activeColor
+                    ? stepColor.full
                     : isActive
-                    ? `${activeColor}20`
+                    ? stepColor.faint
                     : "transparent",
                 }}
                 transition={{ duration: 0.2 }}
@@ -85,7 +93,7 @@ export default function StatusStepper({ incident, onUpdate }) {
                   <motion.div
                     className="h-2 w-2 rounded-full"
                     animate={{
-                      backgroundColor: isActive ? activeColor : "rgba(255,255,255,0.2)",
+                      backgroundColor: isActive ? stepColor.full : "rgba(255,255,255,0.2)",
                     }}
                     transition={{ duration: 0.2 }}
                   />
@@ -108,9 +116,7 @@ export default function StatusStepper({ incident, onUpdate }) {
               <motion.div
                 className="h-px flex-1 mx-2 mb-5"
                 animate={{
-                  backgroundColor: isDone
-                    ? activeColor
-                    : "rgba(255,255,255,0.08)",
+                  backgroundColor: isDone ? stepColor.full : "rgba(255,255,255,0.08)",
                 }}
                 transition={{ duration: 0.3 }}
               />

@@ -38,7 +38,7 @@ export async function generateMetadata({ params }) {
   const page     = await getPage(slug)
   if (!page) return { title: "Status Page Not Found" }
   return {
-    title:       `${page.name} -- Status`,
+    title:       `${page.name} — Status`,
     description: page.description || `Current status of ${page.name} services.`,
   }
 }
@@ -48,16 +48,11 @@ export default async function PublicStatusPageRoute({ params }) {
   const page     = await getPage(slug)
   if (!page) notFound()
 
-  const uptimeMap = await getPublicUptime(slug)
-
+  const uptimeMap          = await getPublicUptime(slug)
   const monitorsWithUptime = (page.monitors ?? []).map(monitor => ({
     ...monitor,
-    uptime_buckets: monitor.show_uptime_history
-      ? (uptimeMap[monitor.id] ?? [])
-      : [],
+    uptime_buckets: monitor.show_uptime_history ? (uptimeMap[monitor.id] ?? []) : [],
   }))
 
-  const initialPage = { ...page, monitors: monitorsWithUptime }
-
-  return <LiveStatusPage initialPage={initialPage} slug={slug} />
+  return <LiveStatusPage initialPage={{ ...page, monitors: monitorsWithUptime }} slug={slug} />
 }

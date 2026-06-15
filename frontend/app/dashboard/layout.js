@@ -1,17 +1,18 @@
 import { cookies } from "next/headers"
 import { redirect } from "next/navigation"
 import DashboardSidebar from "./Sidebar"
+import SessionGuard from "@/components/SessionGuard"
 
 export const metadata = {
   title: {
     default: "Dashboard",
-    template: "%s -- Beacon",
+    template: "%s — Beacon",
   },
 }
 
 async function getCurrentUser() {
   const cookieStore = await cookies()
-  const session     = cookieStore.get("sessionid")
+  const session = cookieStore.get("sessionid")
 
   if (!session) return null
 
@@ -41,7 +42,8 @@ export default async function DashboardLayout({ children }) {
   }
 
   return (
-    <div className="flex min-h-screen">
+    <div className="flex min-h-screen" style={{ background: "#080B10" }}>
+      <SessionGuard />
       <DashboardSidebar user={user} />
       <main className="flex-1 flex flex-col min-w-0">
         {children}

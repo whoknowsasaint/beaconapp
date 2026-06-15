@@ -83,14 +83,14 @@ function UptimeVisual() {
   const [scanLine, setScanLine] = useState(0)  // idle: scanner sweeps rows
   const reducedMotion            = useReducedMotion()
 
-  // Timestamp tick every 3s
+  
   useEffect(() => {
     if (reducedMotion) return
     const id = setInterval(() => setTick(t => t >= 29 ? 2 : t + 1), 3000)
     return () => clearInterval(id)
   }, [reducedMotion])
 
-  // Scan line sweeps through rows on idle — gives the feeling of live checking
+ 
   useEffect(() => {
     if (reducedMotion) return
     const id = setInterval(() => setScanLine(s => (s + 1) % 5), 1400)
@@ -238,18 +238,26 @@ const INC_UPDATES = [
 
 function IncidentVisual() {
   const { ref, active, onMouseEnter, onMouseLeave } = useFeatureAnimation()
-  const [step,      setStep]      = useState(0)
+  const [step, setStep] = useState(0)
   const [idlePulse, setIdlePulse] = useState(false)
-  const reducedMotion              = useReducedMotion()
+  const reducedMotion = useReducedMotion()
 
-  // On hover: stepper auto-advances
+ 
+  const STEP_COLORS = {
+    "#EF4444": { full: "#EF4444", faint: "rgba(239,68,68,0.15)" },
+    "#F59E0B": { full: "#F59E0B", faint: "rgba(245,158,11,0.15)" },
+    "#3B82F6": { full: "#3B82F6", faint: "rgba(59,130,246,0.15)" },
+    "#22C55E": { full: "#22C55E", faint: "rgba(34,197,94,0.15)" },
+  }
+
+  
   useEffect(() => {
     if (!active) { setStep(0); return }
     const id = setInterval(() => setStep(s => (s < 2 ? s + 1 : s)), 1400)
     return () => clearInterval(id)
   }, [active])
 
-  // Idle: CRITICAL badge pulses every 4s to draw attention
+
   useEffect(() => {
     if (reducedMotion || active) return
     const id = setInterval(() => {
@@ -265,34 +273,33 @@ function IncidentVisual() {
       onMouseEnter={onMouseEnter}
       onMouseLeave={onMouseLeave}
       className="h-full flex flex-col justify-center px-5 py-5"
-      style={{ background:"linear-gradient(160deg,rgba(239,68,68,0.06) 0%,#0C0E12 60%)" }}
+      style={{ background: "linear-gradient(160deg,rgba(239,68,68,0.06) 0%,#0C0E12 60%)" }}
     >
       <div className="mb-4">
-        <p style={{ fontSize:12, fontWeight:600, color:"rgba(255,255,255,0.88)", marginBottom:5 }}>
+        <p style={{ fontSize: 12, fontWeight: 600, color: "rgba(255,255,255,0.88)", marginBottom: 5 }}>
           API Gateway — Elevated Error Rate
         </p>
 
-        {/* CRITICAL badge — pulses on idle to draw eye */}
         <motion.span
           style={{
-            display:"inline-flex", alignItems:"center", gap:5, padding:"2px 9px",
-            borderRadius:"9999px", fontSize:9, fontWeight:600, textTransform:"uppercase",
-            letterSpacing:"0.05em", background:"rgba(239,68,68,0.12)", color:"#EF4444",
-            border:"1px solid rgba(239,68,68,0.25)",
+            display: "inline-flex", alignItems: "center", gap: 5, padding: "2px 9px",
+            borderRadius: "9999px", fontSize: 9, fontWeight: 600, textTransform: "uppercase",
+            letterSpacing: "0.05em", background: "rgba(239,68,68,0.12)", color: "#EF4444",
+            border: "1px solid rgba(239,68,68,0.25)",
           }}
           animate={
             active
-              ? { boxShadow:["0 0 0px rgba(239,68,68,0)","0 0 14px rgba(239,68,68,0.45)","0 0 0px rgba(239,68,68,0)"] }
+              ? { boxShadow: ["0 0 0px rgba(239,68,68,0)", "0 0 14px rgba(239,68,68,0.45)", "0 0 0px rgba(239,68,68,0)"] }
               : idlePulse && !reducedMotion
-                ? { boxShadow:["0 0 0px rgba(239,68,68,0)","0 0 10px rgba(239,68,68,0.3)","0 0 0px rgba(239,68,68,0)"] }
+                ? { boxShadow: ["0 0 0px rgba(239,68,68,0)", "0 0 10px rgba(239,68,68,0.3)", "0 0 0px rgba(239,68,68,0)"] }
                 : {}
           }
           transition={{ duration: active ? 2 : 0.8, repeat: active ? Infinity : 0 }}
         >
           <motion.span
-            style={{ width:5, height:5, borderRadius:"50%", background:"#EF4444", display:"inline-block" }}
-            animate={{ opacity:[1,0.25,1] }}
-            transition={{ duration:1.4, repeat:Infinity }}
+            style={{ width: 5, height: 5, borderRadius: "50%", background: "#EF4444", display: "inline-block" }}
+            animate={{ opacity: [1, 0.25, 1] }}
+            transition={{ duration: 1.4, repeat: Infinity }}
           />
           Critical
         </motion.span>
@@ -300,48 +307,52 @@ function IncidentVisual() {
 
       {/* Progress stepper */}
       <div className="flex items-center gap-1 mb-4">
-        {INC_STEPS.map((s,i) => (
-          <div key={s.label} className="flex items-center" style={{ flex:i<3?1:"none" }}>
+        {INC_STEPS.map((s, i) => (
+          <div key={s.label} className="flex items-center" style={{ flex: i < 3 ? 1 : "none" }}>
             <div className="flex flex-col items-center gap-1">
               <motion.div
                 style={{
-                  width:22, height:22, borderRadius:"50%", border:"2px solid",
-                  display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0,
+                  width: 22, height: 22, borderRadius: "50%", border: "2px solid",
+                  display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0,
                 }}
                 animate={{
-                  borderColor:     i<=step ? s.color : "rgba(255,255,255,0.12)",
-                  backgroundColor: i<step  ? s.color : i===step ? `${s.color}25` : "transparent",
-                  scale:           i===step && active ? [1,1.08,1] : 1,
+                  borderColor: i <= step ? s.color : "rgba(255,255,255,0.12)",
+                  backgroundColor: i < step
+                    ? STEP_COLORS[s.color]?.full ?? s.color
+                    : i === step
+                      ? STEP_COLORS[s.color]?.faint ?? "rgba(255,255,255,0.08)"
+                      : "transparent",
+                  scale: i === step && active ? [1, 1.08, 1] : 1,
                 }}
-                transition={{ duration: i===step ? 1.2 : 0.3, repeat: i===step && active ? Infinity : 0 }}
+                transition={{ duration: i === step ? 1.2 : 0.3, repeat: i === step && active ? Infinity : 0 }}
               >
                 {i < step ? (
                   <motion.svg
                     viewBox="0 0 10 10" fill="none" stroke="white" strokeWidth="2"
-                    style={{width:7,height:7}}
-                    initial={{ scale:0, rotate:-30 }}
-                    animate={{ scale:1, rotate:0 }}
-                    transition={{ duration:0.25, type:"spring", stiffness:280 }}
+                    style={{ width: 7, height: 7 }}
+                    initial={{ scale: 0, rotate: -30 }}
+                    animate={{ scale: 1, rotate: 0 }}
+                    transition={{ duration: 0.25, type: "spring", stiffness: 280 }}
                   >
-                    <polyline points="1.5,5 4,7.5 8.5,2.5" strokeLinecap="round" strokeLinejoin="round"/>
+                    <polyline points="1.5,5 4,7.5 8.5,2.5" strokeLinecap="round" strokeLinejoin="round" />
                   </motion.svg>
                 ) : (
                   <motion.span
-                    style={{ width:5, height:5, borderRadius:"50%", display:"inline-block" }}
-                    animate={{ backgroundColor: i===step ? s.color : "rgba(255,255,255,0.2)" }}
-                    transition={{ duration:0.3 }}
+                    style={{ width: 5, height: 5, borderRadius: "50%", display: "inline-block" }}
+                    animate={{ backgroundColor: i === step ? s.color : "rgba(255,255,255,0.2)" }}
+                    transition={{ duration: 0.3 }}
                   />
                 )}
               </motion.div>
-              <span style={{ fontSize:8, color:i<=step?"rgba(255,255,255,0.7)":"rgba(255,255,255,0.22)", whiteSpace:"nowrap" }}>
+              <span style={{ fontSize: 8, color: i <= step ? "rgba(255,255,255,0.7)" : "rgba(255,255,255,0.22)", whiteSpace: "nowrap" }}>
                 {s.label}
               </span>
             </div>
-            {i<3 && (
+            {i < 3 && (
               <motion.div
-                style={{ flex:1, height:1, margin:"0 3px", marginBottom:14 }}
-                animate={{ backgroundColor: i<step ? s.color : "rgba(255,255,255,0.08)" }}
-                transition={{ duration:0.5 }}
+                style={{ flex: 1, height: 1, margin: "0 3px", marginBottom: 14 }}
+                animate={{ backgroundColor: i < step ? s.color : "rgba(255,255,255,0.08)" }}
+                transition={{ duration: 0.5 }}
               />
             )}
           </div>
@@ -352,19 +363,19 @@ function IncidentVisual() {
       <AnimatePresence mode="wait">
         <motion.div
           key={step}
-          initial={{ opacity:0, y:8, scale:0.98 }}
-          animate={{ opacity:1, y:0, scale:1 }}
-          exit={{    opacity:0, y:-6, scale:0.98 }}
-          transition={{ duration:0.28, ease:[0.16,1,0.3,1] }}
+          initial={{ opacity: 0, y: 8, scale: 0.98 }}
+          animate={{ opacity: 1, y: 0, scale: 1 }}
+          exit={{ opacity: 0, y: -6, scale: 0.98 }}
+          transition={{ duration: 0.28, ease: [0.16, 1, 0.3, 1] }}
           className="flex items-start gap-2.5 px-3 py-2.5 rounded-lg"
-          style={{ background:"rgba(255,255,255,0.04)", border:"1px solid rgba(255,255,255,0.08)" }}
+          style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)" }}
         >
           <motion.span
-            style={{ width:7, height:7, borderRadius:"50%", background:INC_STEPS[step]?.color, display:"inline-block", flexShrink:0, marginTop:3 }}
-            animate={{ opacity:[1,0.45,1] }}
-            transition={{ duration:2, repeat:Infinity }}
+            style={{ width: 7, height: 7, borderRadius: "50%", background: INC_STEPS[step]?.color, display: "inline-block", flexShrink: 0, marginTop: 3 }}
+            animate={{ opacity: [1, 0.45, 1] }}
+            transition={{ duration: 2, repeat: Infinity }}
           />
-          <p style={{ fontSize:11, color:"rgba(255,255,255,0.58)", lineHeight:1.55 }}>
+          <p style={{ fontSize: 11, color: "rgba(255,255,255,0.58)", lineHeight: 1.55 }}>
             {INC_UPDATES[step] ?? INC_UPDATES[0]}
           </p>
         </motion.div>
@@ -382,7 +393,7 @@ function StatusPageVisual() {
 
   const svcs = ["API","Authentication","CDN","Database"]
 
-  // Idle: cycle through rows lighting up one at a time (simulates live checks)
+
   useEffect(() => {
     if (reducedMotion) return
     const id = setInterval(() => setIdleRow(r => (r + 1) % 4), 1800)
@@ -700,10 +711,10 @@ const SLACK_CHANNELS = [
 
 function SlackVisual() {
   const { ref, active, onMouseEnter, onMouseLeave } = useFeatureAnimation()
-  const [typing, setTyping] = useState(false)  // idle: simulate someone typing a reply
+  const [typing, setTyping] = useState(false)  
   const reducedMotion        = useReducedMotion()
 
-  // Idle: typing indicator pulses every 6s
+
   useEffect(() => {
     if (reducedMotion || active) return
     const id = setInterval(() => {
@@ -861,14 +872,14 @@ function barH(pct) {
 function ReportingVisual() {
   const { ref, active, onMouseEnter, onMouseLeave } = useFeatureAnimation()
   const [hoveredBar,  setHoveredBar]  = useState(null)
-  const [idleHighlight, setIdleHighlight] = useState(null)  // idle: cursor scans bars
+  const [idleHighlight, setIdleHighlight] = useState(null)  
   const reducedMotion                     = useReducedMotion()
 
-  // Idle: scan bar-by-bar left to right, then jump to amber bar
+
   useEffect(() => {
     if (reducedMotion || active) { setIdleHighlight(null); return }
     let i = 0
-    const seq = [0,1,2,3,4,5,6,7,8,9,10,11,7]  // ends on amber (index 7)
+    const seq = [0,1,2,3,4,5,6,7,8,9,10,11,7] 
     const id  = setInterval(() => {
       setIdleHighlight(seq[i % seq.length])
       i++
@@ -1000,7 +1011,7 @@ const API_HOVER = [
 
 const HOVER_FULL = API_HOVER.map(p => p.text).join("")
 
-// Idle: simulate webhook delivery log entries arriving
+
 const WEBHOOK_ENTRIES = [
   { time:"09:42:01", endpoint:"acme.com/webhook", status:200 },
   { time:"09:42:03", endpoint:"api.monitor.io",   status:200 },
@@ -1016,7 +1027,7 @@ function APIVisual() {
   const timerRef                       = useRef(null)
   const reducedMotion                  = useReducedMotion()
 
-  // Typewriter on hover
+ 
   useEffect(() => {
     if (!active) {
       setChars(0)
@@ -1032,7 +1043,7 @@ function APIVisual() {
     return () => { if (timerRef.current) clearInterval(timerRef.current) }
   }, [active])
 
-  // Idle: webhook log entries arrive one by one
+  
   useEffect(() => {
     if (reducedMotion || active) { setShowWebhook(false); return }
     const show = setTimeout(() => setShowWebhook(true), 1500)

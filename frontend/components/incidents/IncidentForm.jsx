@@ -223,3 +223,4 @@ export default function IncidentForm({ existing, onSuccess, onCancel }) {
     </form>
   )
 }
+

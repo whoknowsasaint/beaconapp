@@ -1,7 +1,7 @@
 from django.shortcuts import render
 
 # Create your views here.
-afrom django.utils.decorators import method_decorator
+from django.utils.decorators import method_decorator
 from django.views import View
 from django.views.decorators.csrf import csrf_exempt
 from .telegram_bot import handle_webhook

@@ -98,7 +98,7 @@ export default function StatusPagesPage() {
       ),
     },
     {
-      key:   "slug",
+      key:   "actions",  // Changed from "slug" to "actions" to avoid duplicate key
       label: "",
       width: "130px",
       render: (slug, row) => (
@@ -106,7 +106,7 @@ export default function StatusPagesPage() {
           <Button
             variant="ghost"
             size="sm"
-            onClick={() => copyPublicUrl(slug)}
+            onClick={() => copyPublicUrl(row.slug)}
           >
             Copy URL
           </Button>

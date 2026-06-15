@@ -20,6 +20,12 @@ CORS_ALLOWED_ORIGINS = [
 
 CORS_ALLOW_CREDENTIALS = True
 
+# ─── CSRF ─────────────────────────────────────
+CSRF_TRUSTED_ORIGINS = [
+    "http://localhost:3000",
+    "http://127.0.0.1:3000",
+]
+
 # ─── Email ────────────────────────────────────
 # Print emails to the console in development
 

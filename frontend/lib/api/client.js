@@ -75,3 +75,21 @@ export const client = {
   patch:  (path, body, options) => request("PATCH",  path, body, options),
   delete: (path, options)       => request("DELETE", path, null, options),
 }
+
+
+export async function fetchWithAuth(path, options = {}) {
+  const res = await fetch(
+    `${process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000"}${path}`,
+    { credentials: "include", cache: "no-store", ...options }
+  )
+
+  if (res.status === 401 || res.status === 403) {
+    
+    if (typeof window !== "undefined") {
+      window.location.href = "/login"
+    }
+    return null
+  }
+
+  return res
+}

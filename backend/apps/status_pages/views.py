@@ -381,7 +381,7 @@ class PublicStatusPageUptimeView(APIView):
         monitors_uptime = []
         for entry in page.monitors.select_related("monitor").order_by("display_order", "created_at"):
             monitor = entry.monitor
-            buckets = get_daily_uptime(monitor.id, days)
+            buckets = get_daily_uptime(monitor, days)
             monitors_uptime.append({
                 "id":                  str(monitor.id),
                 "name":                entry.public_name,

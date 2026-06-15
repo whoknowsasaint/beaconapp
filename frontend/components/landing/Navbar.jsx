@@ -25,7 +25,7 @@ export default function Navbar() {
         transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
         style={{
           pointerEvents: 'auto',
-          // Floating pill shape — premium, not full-width
+          
           display: 'flex',
           alignItems: 'center',
           gap: 0,
@@ -114,7 +114,7 @@ export default function Navbar() {
             Sign in
           </Link>
           <Link
-            href="/register"
+            href="/login"
             style={{
               fontSize: 13,
               fontWeight: 500,
@@ -143,7 +143,7 @@ export default function Navbar() {
   );
 }
 
-// Inline mark so we don't need to import from the other file
+
 function BeaconMark() {
   return (
     <svg width="26" height="26" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" style={{ flexShrink: 0 }}>
