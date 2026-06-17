@@ -215,14 +215,15 @@ export default function DocsPage() {
 
         {/* Sidebar */}
         <div style={{
-          width:       220,
-          flexShrink:  0,
-          position:    "sticky",
-          top:         56,
-          height:      "calc(100vh - 56px)",
-          overflowY:   "auto",
-          padding:     "28px 20px",
-          borderRight: "1px solid rgba(255,255,255,0.07)",
+          width:         220,
+          flexShrink:    0,
+          position:      "sticky",
+          top:           56,
+          alignSelf:     "flex-start",   // ← FIX 1: added
+          height:        "calc(100vh - 56px)",
+          overflowY:     "auto",
+          padding:       "28px 20px",
+          borderRight:   "1px solid rgba(255,255,255,0.07)",
         }}>
           <p style={{ fontSize: 9, fontWeight: 700, color: "rgba(255,255,255,0.25)", textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: 10 }}>
             On this page
@@ -572,6 +573,58 @@ server {
             </div>
 
           </motion.div>
+
+          {/* FIX 2: Footer */}
+          <div style={{
+            marginTop:     64,
+            paddingTop:    32,
+            borderTop:     "1px solid rgba(255,255,255,0.07)",
+            display:       "flex",
+            alignItems:    "center",
+            justifyContent:"space-between",
+            flexWrap:      "wrap",
+            gap:           16,
+          }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+              <svg width="22" height="22" viewBox="0 0 28 28" fill="none">
+                <rect width="28" height="28" rx="7" fill="#1D4ED8"/>
+                <circle cx="10" cy="18" r="2.2" fill="white"/>
+                <path d="M 10 13.5 A 4.5 4.5 0 0 1 14.5 18" stroke="white" strokeWidth="1.8" strokeLinecap="round" fill="none" opacity="0.9"/>
+                <path d="M 10 9.5 A 8.5 8.5 0 0 1 18.5 18" stroke="white" strokeWidth="1.8" strokeLinecap="round" fill="none" opacity="0.55"/>
+                <path d="M 10 5.5 A 12.5 12.5 0 0 1 22.5 18" stroke="white" strokeWidth="1.8" strokeLinecap="round" fill="none" opacity="0.25"/>
+              </svg>
+              <span style={{ fontSize: 14, fontWeight: 600, color: "rgba(255,255,255,0.7)" }}>
+                Powered by Beacon
+              </span>
+            </div>
+            <div style={{ display: "flex", alignItems: "center", gap: 20 }}>
+              <span style={{ fontSize: 12, color: "rgba(255,255,255,0.25)" }}>
+                MIT License · Free to self-host forever
+              </span>
+              <a
+                href="https://github.com/whoknowsasaint/beaconapp"
+                target="_blank"
+                rel="noreferrer"
+                style={{
+                  display:    "flex",
+                  alignItems: "center",
+                  gap:        6,
+                  fontSize:   12,
+                  color:      "rgba(255,255,255,0.4)",
+                  textDecoration: "none",
+                  transition: "color 0.15s",
+                }}
+                onMouseEnter={e => e.currentTarget.style.color = "rgba(255,255,255,0.8)"}
+                onMouseLeave={e => e.currentTarget.style.color = "rgba(255,255,255,0.4)"}
+              >
+                <svg viewBox="0 0 16 16" fill="currentColor" style={{ width: 14, height: 14 }}>
+                  <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0 0 16 8c0-4.42-3.58-8-8-8z"/>
+                </svg>
+                whoknowsasaint/beaconapp
+              </a>
+            </div>
+          </div>
+
         </div>
       </div>
     </div>

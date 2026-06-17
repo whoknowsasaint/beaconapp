@@ -67,13 +67,13 @@ function UptimeBars({ buckets, loading }) {
   if (loading) {
     return (
       <div>
-        <div style={{ display: "flex", gap: 2, alignItems: "flex-end", height: 32, marginBottom: 8 }}>
+        <div style={{ display: "flex", gap: 2, alignItems: "flex-end", height: 36, marginBottom: 8 }}>
           {Array.from({ length: TOTAL }).map((_, i) => (
             <motion.div
               key={i}
               style={{ flex: 1, height: 20, borderRadius: 2, background: "rgba(255,255,255,0.06)" }}
-              animate={{ opacity: [0.4, 0.8, 0.4] }}
-              transition={{ duration: 1.5, delay: i * 0.01, repeat: Infinity }}
+              animate={{ opacity: [0.3, 0.7, 0.3] }}
+              transition={{ duration: 1.5, delay: i * 0.008, repeat: Infinity }}
             />
           ))}
         </div>
@@ -85,10 +85,6 @@ function UptimeBars({ buckets, loading }) {
     )
   }
 
-  const withData  = (buckets ?? []).filter(b => b.status !== "no_data")
-  const upCount   = withData.filter(b => b.status === "up").length
-  const uptimePct = withData.length > 0 ? ((upCount / withData.length) * 100).toFixed(2) : null
-
   const display = buckets && buckets.length > 0
     ? buckets
     : Array.from({ length: TOTAL }, (_, i) => {
@@ -97,21 +93,34 @@ function UptimeBars({ buckets, loading }) {
         return { date: d.toISOString().split("T")[0], status: "no_data", up: 0, down: 0 }
       })
 
+  const withData  = display.filter(b => b.status !== "no_data")
+  const upCount   = withData.filter(b => b.status === "up").length
+  const uptimePct = withData.length > 0
+    ? ((upCount / withData.length) * 100).toFixed(2)
+    : null
+
   return (
     <div>
       {uptimePct !== null && (
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 14 }}>
-          <div style={{ display: "flex", gap: 16, alignItems: "center" }}>
-            <span style={{ fontSize: 22, fontWeight: 700, color: "#22C55E", fontFamily: "var(--font-jetbrains-mono,monospace)", letterSpacing: "-0.03em" }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16, flexWrap: "wrap", gap: 10 }}>
+          <div style={{ display: "flex", alignItems: "baseline", gap: 10 }}>
+            <span style={{ fontSize: 26, fontWeight: 700, color: "#22C55E", fontFamily: "var(--font-jetbrains-mono,monospace)", letterSpacing: "-0.03em" }}>
               {uptimePct}%
             </span>
-            <span style={{ fontSize: 11, color: "rgba(255,255,255,0.35)" }}>uptime over 90 days</span>
+            <span style={{ fontSize: 12, color: "rgba(255,255,255,0.35)" }}>
+              uptime over 90 days
+            </span>
           </div>
-          <div style={{ display: "flex", gap: 12 }}>
-            {[["up", "#22C55E", "Up"], ["degraded", "#F59E0B", "Degraded"], ["down", "#EF4444", "Down"], ["no_data", "rgba(255,255,255,0.15)", "No data"]].map(([s, c, l]) => (
-              <div key={s} style={{ display: "flex", alignItems: "center", gap: 4 }}>
-                <div style={{ width: 8, height: 8, borderRadius: 2, background: c }} />
-                <span style={{ fontSize: 10, color: "rgba(255,255,255,0.35)" }}>{l}</span>
+          <div style={{ display: "flex", gap: 14 }}>
+            {[
+              ["#22C55E", "Up"],
+              ["#F59E0B", "Degraded"],
+              ["#EF4444", "Down"],
+              ["rgba(255,255,255,0.2)", "No data"],
+            ].map(([color, label]) => (
+              <div key={label} style={{ display: "flex", alignItems: "center", gap: 5 }}>
+                <div style={{ width: 8, height: 8, borderRadius: 2, background: color }} />
+                <span style={{ fontSize: 11, color: "rgba(255,255,255,0.35)" }}>{label}</span>
               </div>
             ))}
           </div>
@@ -120,39 +129,43 @@ function UptimeBars({ buckets, loading }) {
 
       <div style={{ display: "flex", gap: 2, alignItems: "flex-end", height: 36 }}>
         {display.map((b, i) => {
+          const isNoData = b.status === "no_data"
           const color =
             b.status === "up"       ? "#22C55E" :
             b.status === "down"     ? "#EF4444" :
             b.status === "degraded" ? "#F59E0B" :
-            "rgba(255,255,255,0.08)"
-          const height = b.status === "no_data" ? 10 : 28
+            "rgba(255,255,255,0.15)"
 
           return (
             <motion.div
               key={i}
-              title={`${b.date} · ${b.status}${b.up > 0 ? ` · ${b.up} up` : ""}${b.down > 0 ? ` · ${b.down} down` : ""}`}
+              title={`${b.date} · ${b.status}${b.up > 0 ? ` · ${b.up} checks up` : ""}${b.down > 0 ? ` · ${b.down} checks down` : ""}`}
               initial={{ scaleY: 0 }}
               animate={{ scaleY: 1 }}
               transition={{ duration: 0.25, delay: i * 0.004, ease: [0.16, 1, 0.3, 1] }}
               style={{
                 flex:            1,
-                height,
+                height:          isNoData ? 16 : 32,
                 borderRadius:    2,
                 background:      color,
-                opacity:         b.status === "no_data" ? 0.3 : 0.82,
+                opacity:         isNoData ? 0.35 : 0.88,
                 transformOrigin: "bottom",
-                cursor:          b.status !== "no_data" ? "pointer" : "default",
+                cursor:          isNoData ? "default" : "pointer",
                 transition:      "opacity 0.15s",
               }}
-              whileHover={b.status !== "no_data" ? { opacity: 1, scaleY: 1.04 } : {}}
+              whileHover={!isNoData ? { opacity: 1, scaleY: 1.06 } : {}}
             />
           )
         })}
       </div>
 
-      <div style={{ display: "flex", justifyContent: "space-between", marginTop: 8 }}>
-        <span style={{ fontSize: 10, color: "rgba(255,255,255,0.28)", fontFamily: "var(--font-jetbrains-mono,monospace)" }}>90 days ago</span>
-        <span style={{ fontSize: 10, color: "rgba(255,255,255,0.28)", fontFamily: "var(--font-jetbrains-mono,monospace)" }}>Today</span>
+      <div style={{ display: "flex", justifyContent: "space-between", marginTop: 10 }}>
+        <span style={{ fontSize: 10, color: "rgba(255,255,255,0.28)", fontFamily: "var(--font-jetbrains-mono,monospace)" }}>
+          90 days ago
+        </span>
+        <span style={{ fontSize: 10, color: "rgba(255,255,255,0.28)", fontFamily: "var(--font-jetbrains-mono,monospace)" }}>
+          Today
+        </span>
       </div>
     </div>
   )
@@ -408,8 +421,8 @@ export default function MonitorDetailPage() {
         </div>
       </div>
 
-      {/* Config + Uptime */}
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 2fr", gap: 12, marginBottom: 12 }}>
+      {/* Config + Uptime – with alignItems: flex-start */}
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 2fr", gap: 12, marginBottom: 12, alignItems: "flex-start" }}>
 
         {/* Configuration */}
         <div style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 12, padding: "20px 24px" }}>
