@@ -1,11 +1,11 @@
 # ──────────────────────────────────────────────
-# Beacon — Rate Limiting
+# Beacon- Rate Limiting
 #
 # Three throttle classes with distinct policies:
 #
-#   LoginThrottle        5  / minute  — brute-force protection
-#   PublicStatusThrottle 120/ minute  — CDN-friendly public reads
-#   APIKeyThrottle       1000/ hour   — authenticated API usage
+#   LoginThrottle        5  / minute - brute-force protection
+#   PublicStatusThrottle 120/ minute - CDN-friendly public reads
+#   APIKeyThrottle       1000/ hour  - authenticated API usage
 #
 # Applied per-view via throttle_classes = [...].
 # Global defaults (anon/user) set in settings/base.py.
@@ -29,7 +29,7 @@ class PublicStatusPageThrottle(AnonRateThrottle):
     """
     Permissive throttle for public status page reads.
     Keyed by IP address (anonymous).
-    120 requests per minute — high enough for CDN pre-warming
+    120 requests per minute- high enough for CDN pre-warming
     and multiple browser tabs polling simultaneously.
     """
     scope = "public_status"
@@ -40,7 +40,7 @@ class APIKeyThrottle(UserRateThrottle):
     """
     Throttle for authenticated API key requests.
     Keyed by the authenticated user's ID.
-    1000 requests per hour — sufficient for integrations
+    1000 requests per hour- sufficient for integrations
     and automation scripts without enabling abuse.
     """
     scope = "api_key"

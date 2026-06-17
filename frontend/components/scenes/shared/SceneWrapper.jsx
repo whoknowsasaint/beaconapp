@@ -1,5 +1,5 @@
 // ──────────────────────────────────────────────
-// Beacon — SceneWrapper
+// Beacon- SceneWrapper
 //
 // The mandatory container for every product scene.
 // Handles all cross-cutting concerns so individual
@@ -16,12 +16,12 @@
 //   </SceneWrapper>
 //
 // Props:
-//   children      — the scene component
-//   ariaLabel     — REQUIRED: full description for screen readers
-//   className     — additional class on the outer container
-//   innerClassName — additional class on the inner container
-//   threshold     — IntersectionObserver threshold (default: 0.2)
-//   id            — optional id for anchor links (e.g. "scene-uptime")
+//   children     - the scene component
+//   ariaLabel    - REQUIRED: full description for screen readers
+//   className    - additional class on the outer container
+//   innerClassName- additional class on the inner container
+//   threshold    - IntersectionObserver threshold (default: 0.2)
+//   id           - optional id for anchor links (e.g. "scene-uptime")
 // ──────────────────────────────────────────────
 
 "use client"
@@ -49,7 +49,7 @@ export default function SceneWrapper({
   // We use a manual IntersectionObserver rather than
   // Framer Motion's useInView so we have full control
   // over the threshold and can pass `inView` as a prop
-  // to children — keeping scenes as pure as possible.
+  // to children- keeping scenes as pure as possible.
   const outerRef = useRef(null)
   const [inView, setInView] = useState(false)
 
@@ -61,7 +61,7 @@ export default function SceneWrapper({
       (entries) => {
         entries.forEach((entry) => {
           if (entry.isIntersecting) {
-            // Once in view, stay in view — animations
+            // Once in view, stay in view- animations
             // don't reset when the user scrolls back up.
             setInView(true)
             observer.unobserve(element)
@@ -85,7 +85,7 @@ export default function SceneWrapper({
 
   // ─── Pass inView + reducedMotion to children ─
   // We clone each child and inject the two props.
-  // This keeps scene components clean — they just
+  // This keeps scene components clean- they just
   // destructure { inView, reducedMotion } from props.
   const enhancedChildren = Children.map(children, (child) => {
     if (!child) return null

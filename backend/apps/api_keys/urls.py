@@ -1,5 +1,5 @@
 # ──────────────────────────────────────────────
-# Beacon — API Key + Auth URL Patterns
+# Beacon- API Key + Auth URL Patterns
 # ──────────────────────────────────────────────
 
 from django.urls import path
@@ -12,7 +12,7 @@ from .views import (
     APIKeyDetailView,
 )
 
-# Auth patterns — mounted at /api/v1/auth/
+# Auth patterns- mounted at /api/v1/auth/
 auth_urlpatterns = [
     path("csrf/",   CSRFView.as_view(),   name="auth-csrf"),
     path("login/",  LoginView.as_view(),  name="auth-login"),
@@ -20,7 +20,7 @@ auth_urlpatterns = [
     path("me/",     MeView.as_view(),     name="auth-me"),
 ]
 
-# API Key patterns — mounted at /api/v1/api-keys/
+# API Key patterns- mounted at /api/v1/api-keys/
 apikey_urlpatterns = [
     path("",          APIKeyListCreateView.as_view(), name="apikey-list-create"),
     path("<uuid:key_id>/", APIKeyDetailView.as_view(),     name="apikey-detail"),

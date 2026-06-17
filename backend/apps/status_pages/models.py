@@ -1,19 +1,19 @@
 # ──────────────────────────────────────────────
-# Beacon — Status Page Models
+# Beacon- Status Page Models
 #
 # Three models:
-#   StatusPage        — a branded public status page
-#   StatusPageMonitor — through-table: page ↔ monitors shown
-#   Subscriber        — someone who receives notifications
+#   StatusPage       - a branded public status page
+#   StatusPageMonitor- through-table: page ↔ monitors shown
+#   Subscriber       - someone who receives notifications
 #
 # Design decisions:
 #   - StatusPage slug is unique and slug-validated at model level.
 #     It forms the public URL and must never change after creation.
 #   - StatusPageMonitor controls display_order so teams can arrange
 #     services in a meaningful order (e.g. most critical first).
-#   - Subscriber uses a UUID token for one-click unsubscribe links —
+#   - Subscriber uses a UUID token for one-click unsubscribe links-
 #     no authentication required to unsubscribe.
-#   - Subscriber notification_channel is extensible — we start with
+#   - Subscriber notification_channel is extensible- we start with
 #     telegram and email; slack and webhook come in Phase 04.
 #   - Subscriber stores telegram_chat_id for Telegram delivery and
 #     email for email delivery. Only the relevant field is populated.
@@ -46,19 +46,19 @@ class StatusPage(models.Model):
     """
     A branded, public-facing status page.
 
-    A single user may own multiple status pages —
+    A single user may own multiple status pages-
     one per product, environment, or customer segment.
 
     The slug forms the public URL:
         /status/{slug}/             (path-based routing)
-        status.{slug}.beacon.app    (subdomain routing — future)
+        status.{slug}.beacon.app    (subdomain routing- future)
 
     Once created, the slug is immutable. Changing it
     would break existing subscriber links, bookmarks,
     and embeds. Enforced at the API layer in Phase 02.
 
     Displayed in:
-        Scene 05 — Public Status Pages
+        Scene 05- Public Status Pages
     """
 
     # ─── Theme ────────────────────────────────
@@ -111,7 +111,7 @@ class StatusPage(models.Model):
         help_text="Optional public description shown below the page title.",
     )
 
-    # Custom brand color — 6-digit hex without #.
+    # Custom brand color- 6-digit hex without #.
     # e.g. "3B82F6" for Beacon blue.
     # Only used when theme = CUSTOM.
     brand_color = models.CharField(
@@ -136,7 +136,7 @@ class StatusPage(models.Model):
     )
 
     # Whether to show the "Powered by Beacon" badge.
-    # True by default — helps with open-source visibility.
+    # True by default- helps with open-source visibility.
     show_beacon_branding = models.BooleanField(
         default=True,
         help_text="Show 'Powered by Beacon' badge on the public page.",
@@ -148,7 +148,7 @@ class StatusPage(models.Model):
         help_text="Allow visitors to subscribe for incident notifications.",
     )
 
-    # Custom domain — future feature placeholder.
+    # Custom domain- future feature placeholder.
     # e.g. "status.acme.com"
     # When set, the status page is also accessible at this domain.
     custom_domain = models.CharField(
@@ -173,7 +173,7 @@ class StatusPage(models.Model):
         verbose_name = "Status Page"
         verbose_name_plural = "Status Pages"
         indexes = [
-            # Lookup by slug — the most common query (every page view)
+            # Lookup by slug- the most common query (every page view)
             models.Index(
                 fields=["slug"],
                 name="idx_statuspage_slug",
@@ -319,14 +319,14 @@ class Subscriber(models.Model):
     for a specific status page.
 
     Notification channels:
-        telegram — message sent via Telegram bot to chat_id
-        email    — message sent via SMTP to email address
+        telegram- message sent via Telegram bot to chat_id
+        email   - message sent via SMTP to email address
         (slack and webhook planned for Phase 04)
 
     Unsubscribe flow:
         Every subscriber gets a UUID token.
         Unsubscribe URL: /status/{slug}/unsubscribe/{token}/
-        No authentication required — the token is the credential.
+        No authentication required- the token is the credential.
 
     Confirmation flow:
         is_confirmed starts False.
@@ -398,7 +398,7 @@ class Subscriber(models.Model):
     )
 
     # Whether this subscriber is currently active.
-    # Set to False on unsubscribe (soft delete — preserves history).
+    # Set to False on unsubscribe (soft delete- preserves history).
     is_active = models.BooleanField(
         default=True,
         db_index=True,

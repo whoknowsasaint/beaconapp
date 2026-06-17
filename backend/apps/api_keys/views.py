@@ -1,17 +1,17 @@
 # ──────────────────────────────────────────────
-# Beacon — API Key Views + Auth Endpoints
+# Beacon- API Key Views + Auth Endpoints
 #
 # Auth endpoints (no authentication required):
-#   GET  /api/v1/auth/csrf/    — set CSRF cookie
-#   POST /api/v1/auth/login/   — session login
-#   POST /api/v1/auth/logout/  — session logout
-#   GET  /api/v1/auth/me/      — current user profile
+#   GET  /api/v1/auth/csrf/   - set CSRF cookie
+#   POST /api/v1/auth/login/  - session login
+#   POST /api/v1/auth/logout/ - session logout
+#   GET  /api/v1/auth/me/     - current user profile
 #
 # API Key endpoints (session or API key auth):
-#   GET    /api/v1/api-keys/        — list keys
-#   POST   /api/v1/api-keys/        — create key
-#   GET    /api/v1/api-keys/{id}/   — retrieve key
-#   DELETE /api/v1/api-keys/{id}/   — revoke key
+#   GET    /api/v1/api-keys/       - list keys
+#   POST   /api/v1/api-keys/       - create key
+#   GET    /api/v1/api-keys/{id}/  - retrieve key
+#   DELETE /api/v1/api-keys/{id}/  - revoke key
 # ──────────────────────────────────────────────
 
 from django.contrib.auth import authenticate, login, logout
@@ -126,7 +126,7 @@ class LogoutView(APIView):
     POST /api/v1/auth/logout/
 
     Ends the current Django session.
-    The API key (if any) is NOT revoked —
+    The API key (if any) is NOT revoked-
     session and API key auth are independent.
     """
     permission_classes = [IsAuthenticated]
@@ -170,8 +170,8 @@ class MeView(APIView):
 
 class APIKeyListCreateView(APIView):
     """
-    GET  /api/v1/api-keys/  — list all keys for the current user
-    POST /api/v1/api-keys/  — create a new key
+    GET  /api/v1/api-keys/ - list all keys for the current user
+    POST /api/v1/api-keys/ - create a new key
     """
     permission_classes = [IsAuthenticated]
 
@@ -207,8 +207,8 @@ class APIKeyListCreateView(APIView):
 
 class APIKeyDetailView(APIView):
     """
-    GET    /api/v1/api-keys/{id}/  — retrieve a single key
-    DELETE /api/v1/api-keys/{id}/  — revoke a key
+    GET    /api/v1/api-keys/{id}/ - retrieve a single key
+    DELETE /api/v1/api-keys/{id}/ - revoke a key
     """
     permission_classes = [IsAuthenticated]
 

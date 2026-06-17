@@ -428,7 +428,7 @@ export default function LiveStatusPage({ initialPage, slug }) {
       {hasError && (
         <div style={{ position: "fixed", top: 20, right: 20, zIndex: 20 }}>
           <div style={{ padding: "8px 14px", borderRadius: 8, background: "rgba(245,158,11,0.12)", border: "1px solid rgba(245,158,11,0.2)" }}>
-            <span style={{ fontSize: 12, color: "#F59E0B" }}>Connection issue — retrying...</span>
+            <span style={{ fontSize: 12, color: "#F59E0B" }}>Connection issue- retrying...</span>
           </div>
         </div>
       )}

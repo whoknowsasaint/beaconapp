@@ -23,5 +23,5 @@ class APIKeyAdmin(admin.ModelAdmin):
     prefix_display.short_description = "Key prefix"
 
     def has_add_permission(self, request):
-        # Keys are created via the API only — never via admin.
+        # Keys are created via the API only- never via admin.
         return False

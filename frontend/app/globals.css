@@ -1,5 +1,5 @@
 /* ──────────────────────────────────────────────
-   Beacon — Global Styles
+   Beacon- Global Styles
    CSS custom properties (design tokens) that power
    the entire Beacon design system.
    All Tailwind color tokens reference these variables.
@@ -126,7 +126,7 @@ body {
 
 /* ─── Scene Glow Utility ─────────────────────── */
 /* Ambient glow layers behind scene panels.       */
-/* Implemented as pseudo-elements — zero DOM cost.*/
+/* Implemented as pseudo-elements- zero DOM cost.*/
 
 .scene-glow-blue {
   position: relative;
@@ -215,7 +215,7 @@ body {
 }
 
 /* ─── Focus Visible ──────────────────────────── */
-/* Matches hover glow style — not the default     */
+/* Matches hover glow style- not the default     */
 /* browser outline. Required by our accessibility */
 /* spec (keyboard = hover visual parity).         */
 
@@ -225,11 +225,11 @@ body {
   border-radius: 4px;
 }
 /*
- * Beacon Landing Page — Design System Additions
+ * Beacon Landing Page- Design System Additions
  * Add to: frontend/app/globals.css (or import in layout.js)
  *
  * This file handles:
- * 1. Background zone lighting (asymmetric, compositional — not centered AI glows)
+ * 1. Background zone lighting (asymmetric, compositional- not centered AI glows)
  * 2. Section transitions and separators
  * 3. Landing-specific type refinements
  * 4. Mobile viewport fixes
@@ -249,7 +249,7 @@ body {
   background: #080B10;
 }
 
-/* Hero zone — a very faint top-left warm zone.
+/* Hero zone- a very faint top-left warm zone.
    Asymmetric. Not centered. Creates a visual anchor
    for the headline without "AI slop" circular glow. */
 .landing-bg::before {
@@ -267,11 +267,11 @@ body {
   );
   pointer-events: none;
   z-index: 0;
-  /* GPU composited — zero repaint cost */
+  /* GPU composited- zero repaint cost */
   will-change: transform;
 }
 
-/* Bottom-right zone — subtle depth for bento/demo sections */
+/* Bottom-right zone- subtle depth for bento/demo sections */
 .landing-bg::after {
   content: '';
   position: fixed;
@@ -292,7 +292,7 @@ body {
 /* ─────────────────────────────────────────────────────────
    2. SECTION SEPARATORS
    Thin, fading horizontal lines between sections.
-   Not full-width — they fade at the edges for refinement.
+   Not full-width- they fade at the edges for refinement.
    ───────────────────────────────────────────────────────── */
 .section-sep {
   position: relative;
@@ -312,7 +312,7 @@ body {
    3. BENTO SECTION BACKGROUND ZONE
    The bento section gets a very slight elevated background
    to create visual section differentiation.
-   Not a solid block — fades at edges.
+   Not a solid block- fades at edges.
    ───────────────────────────────────────────────────────── */
 .section-bento-bg {
   position: relative;
@@ -332,7 +332,7 @@ body {
    "AI-generated" flatness.
    ───────────────────────────────────────────────────────── */
 
-/* Eyebrow labels — consistent treatment */
+/* Eyebrow labels- consistent treatment */
 .eyebrow {
   font-size: 11px;
   font-weight: 500;
@@ -342,7 +342,7 @@ body {
   font-family: var(--font-mono, 'JetBrains Mono', monospace);
 }
 
-/* Section title — sharp, tight */
+/* Section title- sharp, tight */
 .section-title {
   font-size: clamp(28px, 3.5vw, 40px);
   font-weight: 700;
@@ -368,7 +368,7 @@ html, body {
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* Landing page sections — consistent horizontal padding */
+/* Landing page sections- consistent horizontal padding */
 .landing-section {
   padding-left: 24px;
   padding-right: 24px;
@@ -393,12 +393,12 @@ html, body {
   border: 1px solid rgba(255, 255, 255, 0.08);
   box-shadow:
     0 24px 80px rgba(0, 0, 0, 0.6),
-    inset 0 1px 0 rgba(255, 255, 255, 0.06); /* top highlight — the thing that makes glass feel real */
+    inset 0 1px 0 rgba(255, 255, 255, 0.06); /* top highlight- the thing that makes glass feel real */
   border-radius: 12px;
 }
 
 /* ─────────────────────────────────────────────────────────
-   7. FOCUS STATES — overrides default ugly outline
+   7. FOCUS STATES- overrides default ugly outline
    ───────────────────────────────────────────────────────── */
 :focus-visible {
   outline: 2px solid rgba(59, 130, 246, 0.5);
@@ -415,7 +415,7 @@ html, body {
 }
 
 /* ─────────────────────────────────────────────────────────
-   9. SCROLLBAR — minimal, on-brand
+   9. SCROLLBAR- minimal, on-brand
    ───────────────────────────────────────────────────────── */
 ::-webkit-scrollbar {
   width: 6px;

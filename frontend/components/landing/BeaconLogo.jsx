@@ -1,5 +1,5 @@
 // BeaconLogo.jsx
-// The Beacon logomark: concentric arcs emanating from a dot — a real beacon/signal.
+// The Beacon logomark: concentric arcs emanating from a dot- a real beacon/signal.
 // Clean, geometric, scalable. Works at 16px (favicon) and 40px (navbar).
 
 export function BeaconMark({ size = 28, className = '' }) {
@@ -16,10 +16,10 @@ export function BeaconMark({ size = 28, className = '' }) {
       {/* Background square with rounded corners */}
       <rect width="28" height="28" rx="7" fill="#1D4ED8" />
 
-      {/* Center dot — the source */}
+      {/* Center dot- the source */}
       <circle cx="10" cy="18" r="2.2" fill="white" />
 
-      {/* Arc 1 — closest */}
+      {/* Arc 1- closest */}
       <path
         d="M 10 13.5 A 4.5 4.5 0 0 1 14.5 18"
         stroke="white"
@@ -29,7 +29,7 @@ export function BeaconMark({ size = 28, className = '' }) {
         opacity="0.9"
       />
 
-      {/* Arc 2 — mid */}
+      {/* Arc 2- mid */}
       <path
         d="M 10 9.5 A 8.5 8.5 0 0 1 18.5 18"
         stroke="white"
@@ -39,7 +39,7 @@ export function BeaconMark({ size = 28, className = '' }) {
         opacity="0.55"
       />
 
-      {/* Arc 3 — far */}
+      {/* Arc 3- far */}
       <path
         d="M 10 5.5 A 12.5 12.5 0 0 1 22.5 18"
         stroke="white"
@@ -71,7 +71,7 @@ export function BeaconLockup({ className = '' }) {
   );
 }
 
-// Standalone SVG string — export this as favicon.svg
+// Standalone SVG string- export this as favicon.svg
 // Save the content of BeaconFaviconSVG as /public/favicon.svg
 export const BeaconFaviconSVG = `<svg width="32" height="32" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
   <rect width="28" height="28" rx="7" fill="#1D4ED8"/>

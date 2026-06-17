@@ -205,7 +205,7 @@ function ChecksRunningUI() {
             color:      "rgba(255,255,255,0.45)",
           }}
         >
-          Live monitoring — Last check: {tick % 30}s ago
+          Live monitoring- Last check: {tick % 30}s ago
         </span>
       </div>
 
@@ -282,7 +282,7 @@ function IncidentOpenUI() {
             marginBottom: 5,
           }}
         >
-          API Gateway — Elevated Error Rate
+          API Gateway- Elevated Error Rate
         </p>
         <motion.span
           initial={{ scale: 0.85, opacity: 0 }}
@@ -408,101 +408,127 @@ function IncidentOpenUI() {
 }
 
 function NotificationUI() {
+  const CHANNELS = [
+    {
+      platform: "Telegram",
+      detail:   "847 subscribers",
+      delay:    0,
+      bg:       "linear-gradient(145deg, #2AABEE, #1A97D4)",
+      shadow:   "0 4px 14px rgba(34,158,217,0.45)",
+      icon: (
+        <svg viewBox="0 0 24 24" fill="white" style={{ width: 22, height: 22 }}>
+          <path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"/>
+        </svg>
+      ),
+    },
+    {
+      platform: "Slack",
+      detail:   "#ops-alerts",
+      delay:    0.18,
+      bg:       "linear-gradient(145deg, #611F69, #4A154B)",
+      shadow:   "0 4px 14px rgba(74,21,75,0.5)",
+      icon: (
+        <svg viewBox="0 0 24 24" fill="white" style={{ width: 20, height: 20 }}>
+          <path d="M5.042 15.165a2.528 2.528 0 0 1-2.52 2.523A2.528 2.528 0 0 1 0 15.165a2.527 2.527 0 0 1 2.522-2.52h2.52v2.52zm1.271 0a2.527 2.527 0 0 1 2.521-2.52 2.527 2.527 0 0 1 2.521 2.52v6.313A2.528 2.528 0 0 1 8.834 24a2.528 2.528 0 0 1-2.521-2.522v-6.313zM8.834 5.042a2.528 2.528 0 0 1-2.521-2.52A2.528 2.528 0 0 1 8.834 0a2.528 2.528 0 0 1 2.521 2.522v2.52H8.834zm0 1.271a2.528 2.528 0 0 1 2.521 2.521 2.528 2.528 0 0 1-2.521 2.521H2.522A2.528 2.528 0 0 1 0 8.834a2.528 2.528 0 0 1 2.522-2.521h6.312zm10.122 2.521a2.528 2.528 0 0 1 2.522-2.521A2.528 2.528 0 0 1 24 8.834a2.528 2.528 0 0 1-2.522 2.521h-2.522V8.834zm-1.268 0a2.528 2.528 0 0 1-2.523 2.521 2.527 2.527 0 0 1-2.52-2.521V2.522A2.527 2.527 0 0 1 15.165 0a2.528 2.528 0 0 1 2.523 2.522v6.312zm-2.523 10.122a2.528 2.528 0 0 1 2.523 2.522A2.528 2.528 0 0 1 15.165 24a2.527 2.527 0 0 1-2.52-2.522v-2.522h2.52zm0-1.268a2.527 2.527 0 0 1-2.52-2.523 2.526 2.526 0 0 1 2.52-2.52h6.313A2.527 2.527 0 0 1 24 15.165a2.528 2.528 0 0 1-2.522 2.523h-6.313z"/>
+        </svg>
+      ),
+    },
+    {
+      platform: "Email",
+      detail:   "12 subscribers",
+      delay:    0.36,
+      bg:       "linear-gradient(145deg, #4285F4, #2A6FE8)",
+      shadow:   "0 4px 14px rgba(66,133,244,0.4)",
+      icon: (
+        <svg viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" style={{ width: 22, height: 22 }}>
+          <rect x="2" y="4" width="20" height="16" rx="2"/>
+          <path d="M2 7l10 7 10-7"/>
+        </svg>
+      ),
+    },
+  ]
+
   return (
-    <div style={{ padding: "18px 24px" }}>
-      <p
-        style={{
-          fontSize:    11,
-          color:       "rgba(255,255,255,0.4)",
-          fontFamily:  "var(--font-jetbrains-mono, monospace)",
-          marginBottom: 14,
-        }}
-      >
+    <div style={{ padding: "22px 28px" }}>
+      <p style={{ fontSize: 11, fontFamily: "var(--font-jetbrains-mono,monospace)", color: "rgba(255,255,255,0.38)", marginBottom: 16 }}>
         Notifying 847 subscribers...
       </p>
 
-      {[
-        { platform: "Telegram", color: "#229ED9", detail: "847 subscribers", icon: "TG", delay: 0   },
-        { platform: "Slack",    color: "#4A154B", detail: "#ops-alerts",      icon: "SL", delay: 0.2 },
-        { platform: "Email",    color: "#3B82F6", detail: "12 subscribers",   icon: "@",  delay: 0.4 },
-      ].map(n => (
-        <motion.div
-          key={n.platform}
-          initial={{ opacity: 0, x: -10 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.3, delay: n.delay }}
-          style={{
-            display:      "flex",
-            alignItems:   "center",
-            gap:          10,
-            padding:      "8px 12px",
-            borderRadius: 8,
-            background:   "rgba(255,255,255,0.03)",
-            border:       "1px solid rgba(255,255,255,0.07)",
-            marginBottom: 8,
-          }}
-        >
-          <div
+      <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+        {CHANNELS.map(ch => (
+          <motion.div
+            key={ch.platform}
+            initial={{ opacity: 0, x: -14 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.35, delay: ch.delay, ease: [0.16, 1, 0.3, 1] }}
             style={{
-              width:          28,
-              height:         28,
-              borderRadius:   7,
-              background:     n.color,
+              display:      "flex",
+              alignItems:   "center",
+              gap:          12,
+              padding:      "10px 14px",
+              borderRadius: 10,
+              background:   "rgba(255,255,255,0.03)",
+              border:       "1px solid rgba(255,255,255,0.07)",
+            }}
+          >
+            <div style={{
+              width:          38,
+              height:         38,
+              borderRadius:   10,
+              background:     ch.bg,
               display:        "flex",
               alignItems:     "center",
               justifyContent: "center",
               flexShrink:     0,
-            }}
-          >
-            <span style={{ fontSize: 9, fontWeight: 700, color: "white" }}>
-              {n.icon}
-            </span>
-          </div>
-          <div style={{ flex: 1 }}>
-            <p
+              boxShadow:      ch.shadow,
+              position:       "relative",
+              overflow:       "hidden",
+            }}>
+              <div style={{
+                position:     "absolute",
+                top:          0,
+                left:         0,
+                right:        0,
+                height:       "50%",
+                background:   "linear-gradient(to bottom, rgba(255,255,255,0.18), transparent)",
+                borderRadius: "10px 10px 0 0",
+                pointerEvents:"none",
+              }} />
+              <div style={{ position: "relative", zIndex: 1 }}>{ch.icon}</div>
+            </div>
+
+            <div style={{ flex: 1 }}>
+              <p style={{ fontSize: 12, fontWeight: 600, color: "rgba(255,255,255,0.85)", marginBottom: 1 }}>
+                {ch.platform}
+              </p>
+              <p style={{ fontSize: 11, color: "rgba(255,255,255,0.38)" }}>
+                {ch.detail}
+              </p>
+            </div>
+
+            <motion.div
+              initial={{ scale: 0, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              transition={{ duration: 0.28, delay: ch.delay + 0.35, type: "spring", stiffness: 260 }}
               style={{
-                fontSize:  11,
-                fontWeight: 600,
-                color:     "rgba(255,255,255,0.75)",
+                width:          22,
+                height:         22,
+                borderRadius:   "50%",
+                background:     "rgba(34,197,94,0.15)",
+                border:         "1.5px solid rgba(34,197,94,0.4)",
+                display:        "flex",
+                alignItems:     "center",
+                justifyContent: "center",
+                flexShrink:     0,
               }}
             >
-              {n.platform}
-            </p>
-            <p style={{ fontSize: 10, color: "rgba(255,255,255,0.35)" }}>
-              {n.detail}
-            </p>
-          </div>
-          <motion.div
-            initial={{ scale: 0 }}
-            animate={{ scale: 1 }}
-            transition={{ duration: 0.2, delay: n.delay + 0.3, type: "spring" }}
-            style={{
-              width:          18,
-              height:         18,
-              borderRadius:   "50%",
-              background:     "rgba(34,197,94,0.15)",
-              border:         "1px solid rgba(34,197,94,0.3)",
-              display:        "flex",
-              alignItems:     "center",
-              justifyContent: "center",
-            }}
-          >
-            <svg
-              viewBox="0 0 10 10"
-              fill="none"
-              stroke="#22C55E"
-              strokeWidth="2"
-              style={{ width: 8, height: 8 }}
-            >
-              <path
-                d="M1.5 5l2.5 2.5 4.5-4.5"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-            </svg>
+              <svg viewBox="0 0 12 12" fill="none" stroke="#22C55E" strokeWidth="2" style={{ width: 10, height: 10 }}>
+                <path d="M1.5 6l3 3 6-6" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+            </motion.div>
           </motion.div>
-        </motion.div>
-      ))}
+        ))}
+      </div>
     </div>
   )
 }
@@ -666,7 +692,7 @@ export default function ProductDemo() {
           className="text-base max-w-md mx-auto"
           style={{ color: "rgba(255,255,255,0.42)" }}
         >
-          Watch how Beacon handles a real incident — from detection to resolution.
+          Watch how Beacon handles a real incident- from detection to resolution.
         </p>
       </div>
 
@@ -675,7 +701,7 @@ export default function ProductDemo() {
         style={{ border: "1px solid rgba(255,255,255,0.08)", background: "#0D0F12" }}
       >
         <div className="flex flex-col lg:flex-row">
-          {/* Left — step list */}
+          {/* Left- step list */}
           <div
             className="lg:w-72 flex-shrink-0 border-b lg:border-b-0 lg:border-r"
             style={{ borderColor: "rgba(255,255,255,0.07)", padding: "24px 20px" }}
@@ -793,7 +819,7 @@ export default function ProductDemo() {
             </div>
           </div>
 
-          {/* Right — animated product UI */}
+          {/* Right- animated product UI */}
           <div className="flex-1" style={{ minHeight: 320 }}>
             <AnimatePresence mode="wait">
               <motion.div

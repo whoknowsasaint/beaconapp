@@ -6,7 +6,7 @@ import SessionGuard from "@/components/SessionGuard"
 export const metadata = {
   title: {
     default: "Dashboard",
-    template: "%s — Beacon",
+    template: "%s- Beacon",
   },
 }
 

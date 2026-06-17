@@ -1,5 +1,5 @@
 # ──────────────────────────────────────────────
-# Beacon — Incidents App Configuration
+# Beacon- Incidents App Configuration
 # ──────────────────────────────────────────────
 
 from django.apps import AppConfig

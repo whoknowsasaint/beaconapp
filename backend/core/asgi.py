@@ -1,5 +1,5 @@
 # ──────────────────────────────────────────────
-# Beacon — ASGI Entry Point
+# Beacon- ASGI Entry Point
 # Reserved for future WebSocket support
 # (real-time status updates via Django Channels).
 # ──────────────────────────────────────────────

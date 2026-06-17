@@ -1,5 +1,5 @@
 # ──────────────────────────────────────────────
-# Beacon — Status Pages Model Tests
+# Beacon- Status Pages Model Tests
 # Run with: python manage.py test apps.status_pages
 # ──────────────────────────────────────────────
 

@@ -1,5 +1,5 @@
 # ──────────────────────────────────────────────
-# Beacon — Base Settings
+# Beacon- Base Settings
 # Shared across all environments.
 # Environment-specific files import from here.
 # ──────────────────────────────────────────────
@@ -172,7 +172,7 @@ REST_FRAMEWORK = {
         # Global defaults
         "anon":          "100/hour",
         "user":          "1000/hour",
-        # Named scopes — matched by throttle_classes on each view
+        # Named scopes- matched by throttle_classes on each view
         "login":         "5/minute",
         "public_status": "120/minute",
         "api_key":       "1000/hour",

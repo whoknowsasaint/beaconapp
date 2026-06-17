@@ -1,5 +1,5 @@
 # ──────────────────────────────────────────────
-# Beacon — APIKey Model
+# Beacon- APIKey Model
 #
 # Security design:
 #   - Raw key generated once, shown once, never stored.
@@ -12,10 +12,10 @@
 #     (first 12 chars of the full key including "bk_live_").
 #
 # Lifecycle:
-#   - is_active=True   — key works
-#   - revoked_at set   — key is revoked (is_active=False)
-#   - expires_at past  — key is expired (checked in auth backend)
-#   - last_used_at     — updated on every successful auth
+#   - is_active=True  - key works
+#   - revoked_at set  - key is revoked (is_active=False)
+#   - expires_at past - key is expired (checked in auth backend)
+#   - last_used_at    - updated on every successful auth
 # ──────────────────────────────────────────────
 
 import uuid
@@ -52,8 +52,8 @@ class APIKey(models.Model):
         help_text="Human-readable name. e.g. 'CI/CD Pipeline' or 'Zapier Integration'.",
     )
 
-    # Stored display prefix — first 12 chars of the raw key.
-    # e.g. "bk_live_xK9m" — enough to identify the key visually
+    # Stored display prefix- first 12 chars of the raw key.
+    # e.g. "bk_live_xK9m"- enough to identify the key visually
     # without any security risk.
     prefix = models.CharField(
         max_length=12,
@@ -120,7 +120,7 @@ class APIKey(models.Model):
         ]
 
     def __str__(self):
-        return f"{self.name} ({self.prefix}...) — {'active' if self.is_active else 'revoked'}"
+        return f"{self.name} ({self.prefix}...)- {'active' if self.is_active else 'revoked'}"
 
     # ─── Class Methods ────────────────────────
 
@@ -131,7 +131,7 @@ class APIKey(models.Model):
 
         Returns a tuple: (APIKey instance, raw_key string)
         The raw_key is shown to the user exactly once.
-        It is NOT stored — only its hash is persisted.
+        It is NOT stored- only its hash is persisted.
 
         Usage:
             api_key, raw_key = APIKey.generate(owner=user, name="CI Pipeline")

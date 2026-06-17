@@ -1,5 +1,5 @@
 // ──────────────────────────────────────────────
-// Beacon — Motion Constants
+// Beacon- Motion Constants
 // Single source of truth for all animation values.
 // Import these in every Framer Motion component
 // instead of hard-coding easing and duration values.
@@ -14,10 +14,10 @@
 // and the scene spec exactly.
 
 export const EASE = {
-  /** Snappy ease-out — used for all scene entrances */
+  /** Snappy ease-out- used for all scene entrances */
   entrance: [0.16, 1, 0.3, 1],
 
-  /** Material standard — used for hover states */
+  /** Material standard- used for hover states */
   hover: [0.4, 0, 0.2, 1],
 
   /** Standard ease-in-out for idle loops */
@@ -28,19 +28,19 @@ export const EASE = {
 // All values in seconds (Framer Motion convention).
 
 export const DURATION = {
-  /** 0.1s — copy feedback, micro-interactions */
+  /** 0.1s- copy feedback, micro-interactions */
   instant: 0.1,
 
-  /** 0.15s — hover states */
+  /** 0.15s- hover states */
   fast: 0.15,
 
-  /** 0.3s — most transitions */
+  /** 0.3s- most transitions */
   normal: 0.3,
 
-  /** 0.5s — scene entrances */
+  /** 0.5s- scene entrances */
   entrance: 0.5,
 
-  /** 0.8s — path drawing, bar growth */
+  /** 0.8s- path drawing, bar growth */
   draw: 0.8,
 }
 
@@ -48,7 +48,7 @@ export const DURATION = {
 // Pre-built Framer Motion variant objects.
 // Compose these in scene components.
 
-/** Standard panel entrance — fade up from 20px below */
+/** Standard panel entrance- fade up from 20px below */
 export const panelVariants = {
   hidden: {
     opacity: 0,
@@ -80,7 +80,7 @@ export const terminalVariants = {
   },
 }
 
-/** Staggered children — parent container variant */
+/** Staggered children- parent container variant */
 export const staggerContainerVariants = {
   hidden: { opacity: 0 },
   visible: {
@@ -108,7 +108,7 @@ export const staggerChildVariants = {
   },
 }
 
-/** Slide in from right — notification cards, thread panels */
+/** Slide in from right- notification cards, thread panels */
 export const slideFromRightVariants = {
   hidden: {
     opacity: 0,
@@ -124,7 +124,7 @@ export const slideFromRightVariants = {
   },
 }
 
-/** Tooltip — fade up 4px */
+/** Tooltip- fade up 4px */
 export const tooltipVariants = {
   hidden: {
     opacity: 0,
@@ -148,7 +148,7 @@ export const tooltipVariants = {
   },
 }
 
-/** Ambient glow — fades in before the panel */
+/** Ambient glow- fades in before the panel */
 export const glowVariants = {
   hidden: { opacity: 0 },
   visible: {

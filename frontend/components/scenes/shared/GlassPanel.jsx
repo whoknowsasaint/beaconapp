@@ -1,5 +1,5 @@
 // ──────────────────────────────────────────────
-// Beacon — GlassPanel
+// Beacon- GlassPanel
 //
 // The base surface component for every scene's
 // primary object. Encapsulates the glass material
@@ -7,17 +7,17 @@
 // and optional ambient glow.
 //
 // Props:
-//   children     — content rendered inside the panel
-//   className    — additional Tailwind classes
-//   blur         — backdrop blur amount (default: "glass" = 12px)
-//   shadow       — named shadow token (default: "glass")
-//   glow         — glow color string e.g. "#3B82F6" or null
-//   glowOpacity  — glow intensity 0–1 (default: 0.15)
-//   glowSize     — glow radius in px (default: 600)
-//   topHighlight — show 1px top-edge gradient (default: true)
-//   rounded      — border radius class (default: "rounded-2xl")
-//   as           — HTML element to render (default: "div")
-//   ...rest      — any other props passed to the root element
+//   children    - content rendered inside the panel
+//   className   - additional Tailwind classes
+//   blur        - backdrop blur amount (default: "glass" = 12px)
+//   shadow      - named shadow token (default: "glass")
+//   glow        - glow color string e.g. "#3B82F6" or null
+//   glowOpacity - glow intensity 0–1 (default: 0.15)
+//   glowSize    - glow radius in px (default: 600)
+//   topHighlight- show 1px top-edge gradient (default: true)
+//   rounded     - border radius class (default: "rounded-2xl")
+//   as          - HTML element to render (default: "div")
+//   ...rest     - any other props passed to the root element
 // ──────────────────────────────────────────────
 
 "use client"
@@ -104,7 +104,7 @@ const GlassPanel = forwardRef(function GlassPanel(
 
       {/* ── Top Highlight Edge ─────────────────
           A 1px gradient at the top of the panel.
-          Simulates a light source from above —
+          Simulates a light source from above-
           the "polished glass" effect used in Clerk,
           Linear, and Vercel's card components. */}
       {topHighlight && (

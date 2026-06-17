@@ -20,7 +20,7 @@ class Migration(migrations.Migration):
             name='Incident',
             fields=[
                 ('id', models.UUIDField(default=uuid.uuid4, editable=False, help_text='Unique identifier. Used in status page URLs.', primary_key=True, serialize=False)),
-                ('title', models.CharField(help_text="Short description. e.g. 'API Gateway — Elevated Error Rate'.", max_length=255)),
+                ('title', models.CharField(help_text="Short description. e.g. 'API Gateway- Elevated Error Rate'.", max_length=255)),
                 ('status', models.CharField(choices=[('investigating', 'Investigating'), ('identified', 'Identified'), ('monitoring', 'Monitoring'), ('resolved', 'Resolved')], db_index=True, default='investigating', help_text='Current lifecycle stage of this incident.', max_length=15)),
                 ('severity', models.CharField(choices=[('critical', 'Critical'), ('major', 'Major'), ('minor', 'Minor'), ('notice', 'Notice')], db_index=True, default='minor', help_text='Impact severity. Independent of lifecycle status.', max_length=10)),
                 ('summary', models.TextField(blank=True, default='', help_text='Optional public-facing summary of the incident. Shown on the status page above the update feed.')),

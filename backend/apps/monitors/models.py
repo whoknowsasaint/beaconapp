@@ -1,9 +1,9 @@
 # ──────────────────────────────────────────────
-# Beacon — Monitor Models
+# Beacon- Monitor Models
 #
 # Two models:
-#   Monitor      — a service being watched
-#   MonitorCheck — a single ping result for a monitor
+#   Monitor     - a service being watched
+#   MonitorCheck- a single ping result for a monitor
 #
 # Design decisions:
 #   - UUIDs as primary keys: safe to expose in URLs/API
@@ -37,7 +37,7 @@ class Monitor(models.Model):
 
     # ─── Current Status ───────────────────────
     # Denormalized from the latest MonitorCheck for
-    # fast reads — we don't want to JOIN on every
+    # fast reads- we don't want to JOIN on every
     # status page load.
     class MonitorStatus(models.TextChoices):
         OPERATIONAL = "operational", "Operational"
@@ -123,7 +123,7 @@ class Monitor(models.Model):
         help_text="Request timeout in seconds. Min: 1, Max: 60.",
     )
 
-    # Current denormalized status — updated by the checker worker
+    # Current denormalized status- updated by the checker worker
     status = models.CharField(
         max_length=15,
         choices=MonitorStatus.choices,
@@ -255,7 +255,7 @@ class MonitorCheck(models.Model):
 
     class Meta:
         db_table = "monitor_checks"
-        # Most recent checks first — standard for time-series data
+        # Most recent checks first- standard for time-series data
         ordering = ["-checked_at"]
         verbose_name = "Monitor Check"
         verbose_name_plural = "Monitor Checks"
@@ -278,7 +278,7 @@ class MonitorCheck(models.Model):
 
     def __str__(self):
         return (
-            f"{self.monitor.name} — {self.get_status_display()} "
+            f"{self.monitor.name}- {self.get_status_display()} "
             f"at {self.checked_at:%Y-%m-%d %H:%M:%S} UTC"
         )
 

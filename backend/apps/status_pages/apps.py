@@ -1,5 +1,5 @@
 # ──────────────────────────────────────────────
-# Beacon — Status Pages App Configuration
+# Beacon- Status Pages App Configuration
 # ──────────────────────────────────────────────
 
 from django.apps import AppConfig

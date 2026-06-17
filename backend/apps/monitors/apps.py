@@ -1,5 +1,5 @@
 # ──────────────────────────────────────────────
-# Beacon — Monitors App Configuration
+# Beacon- Monitors App Configuration
 # ──────────────────────────────────────────────
 
 from django.apps import AppConfig

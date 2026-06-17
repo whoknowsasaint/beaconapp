@@ -38,7 +38,7 @@ export async function generateMetadata({ params }) {
   const page     = await getPage(slug)
   if (!page) return { title: "Status Page Not Found" }
   return {
-    title:       `${page.name} — Status`,
+    title:       `${page.name}- Status`,
     description: page.description || `Current status of ${page.name} services.`,
   }
 }

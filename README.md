@@ -2,7 +2,7 @@
 
 > A free, self-hostable alternative to Statuspage.io.
 
-Beacon lets teams create beautiful, real-time status pages for their services — 
+Beacon lets teams create beautiful, real-time status pages for their services- 
 with full control over their data and infrastructure.
 
 ## Stack

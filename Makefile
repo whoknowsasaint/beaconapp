@@ -1,5 +1,5 @@
 # ──────────────────────────────────────────────
-# Beacon — Makefile
+# Beacon- Makefile
 # Single entry point for all developer commands.
 #
 # Usage:
@@ -28,7 +28,7 @@ NPM         = npm
 FRONTEND    = frontend
 
 # ─── Colours (Windows PowerShell compatible) ──
-# We skip ANSI codes — they don't render reliably
+# We skip ANSI codes- they don't render reliably
 # in all Windows terminals. Clean output only.
 
 # ─── Phony targets ────────────────────────────

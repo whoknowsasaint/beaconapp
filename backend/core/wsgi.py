@@ -1,5 +1,5 @@
 # ──────────────────────────────────────────────
-# Beacon — WSGI Entry Point
+# Beacon- WSGI Entry Point
 # Used by Gunicorn in production.
 # ──────────────────────────────────────────────
 

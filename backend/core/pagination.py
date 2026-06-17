@@ -1,5 +1,5 @@
 # ──────────────────────────────────────────────
-# Beacon — Pagination
+# Beacon- Pagination
 # Single pagination class used by all list views.
 # Returns: { count, next, previous, results }
 # ──────────────────────────────────────────────

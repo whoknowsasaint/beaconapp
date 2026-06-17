@@ -333,7 +333,7 @@ export default function IncidentDetailPage() {
           </div>
           {currentStepIdx < STEPS.length - 1 && (
             <p style={{ fontSize: 11, color: "rgba(255,255,255,0.28)", marginTop: 12 }}>
-              Click the next step to advance — <span style={{ color: STEPS[currentStepIdx + 1]?.color }}>{STEPS[currentStepIdx + 1]?.label}</span>
+              Click the next step to advance- <span style={{ color: STEPS[currentStepIdx + 1]?.color }}>{STEPS[currentStepIdx + 1]?.label}</span>
             </p>
           )}
         </div>

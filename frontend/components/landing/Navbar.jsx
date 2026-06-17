@@ -60,12 +60,12 @@ export default function Navbar() {
           </span>
         </Link>
 
-        {/* Nav links — center */}
+        {/* Nav links- center */}
         <nav className="hidden md:flex items-center gap-1 absolute left-1/2 -translate-x-1/2">
           {[
             { label: 'Features', href: '#features' },
             { label: 'Docs', href: '/docs' },
-            { label: 'GitHub', href: 'https://github.com/your-org/beacon' },
+            { label: 'GitHub', href: 'https://github.com/whoknowsasaint/beaconapp' },
           ].map((item) => (
             <Link
               key={item.label}
@@ -93,7 +93,7 @@ export default function Navbar() {
           ))}
         </nav>
 
-        {/* CTA — right */}
+        {/* CTA- right */}
         <div className="flex items-center gap-2 ml-auto">
           <Link
             href="/login"

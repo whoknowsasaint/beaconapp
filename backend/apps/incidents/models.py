@@ -1,10 +1,10 @@
 # ──────────────────────────────────────────────
-# Beacon — Incident Models
+# Beacon- Incident Models
 #
 # Three models:
-#   Incident        — a declared service disruption
-#   IncidentUpdate  — a timestamped message during an incident
-#   IncidentMonitor — through-table: incident ↔ affected monitors
+#   Incident       - a declared service disruption
+#   IncidentUpdate - a timestamped message during an incident
+#   IncidentMonitor- through-table: incident ↔ affected monitors
 #
 # Design decisions:
 #   - Incidents use UUIDs (safe to expose in status page URLs)
@@ -18,7 +18,7 @@
 #   - resolved_at is set explicitly rather than derived
 #       from status so it survives status rollbacks
 #   - IncidentMonitor stores the monitor's status snapshot
-#       at the time it was linked — historical accuracy
+#       at the time it was linked- historical accuracy
 # ──────────────────────────────────────────────
 
 import uuid
@@ -57,7 +57,7 @@ class Incident(models.Model):
         RESOLVED      = "resolved",      "Resolved"
 
     # ─── Severity ─────────────────────────────
-    # Orthogonal to status — a CRITICAL incident
+    # Orthogonal to status- a CRITICAL incident
     # can be RESOLVED, a MINOR one still INVESTIGATING.
 
     class Severity(models.TextChoices):
@@ -84,7 +84,7 @@ class Incident(models.Model):
 
     title = models.CharField(
         max_length=255,
-        help_text="Short description. e.g. 'API Gateway — Elevated Error Rate'.",
+        help_text="Short description. e.g. 'API Gateway- Elevated Error Rate'.",
     )
 
     status = models.CharField(
@@ -104,7 +104,7 @@ class Incident(models.Model):
     )
 
     # Human-readable summary shown at the top of the
-    # status page incident section. Optional — teams may
+    # status page incident section. Optional- teams may
     # prefer to communicate only via IncidentUpdates.
     summary = models.TextField(
         blank=True,
@@ -218,7 +218,7 @@ class IncidentUpdate(models.Model):
     A single timestamped message posted during an incident.
 
     These are the entries in the update feed shown in Scene 02.
-    By convention, updates are append-only — never edited after posting.
+    By convention, updates are append-only- never edited after posting.
     This preserves audit trail integrity and subscriber trust.
 
     Displayed on:
@@ -334,7 +334,7 @@ class IncidentMonitor(models.Model):
     )
 
     # The monitor's status when it was linked to this incident.
-    # Stored as a snapshot — the monitor's current status may
+    # Stored as a snapshot- the monitor's current status may
     # have changed since the link was created.
     monitor_status_snapshot = models.CharField(
         max_length=15,

@@ -1,5 +1,5 @@
 # ──────────────────────────────────────────────
-# Beacon — Incidents Admin
+# Beacon- Incidents Admin
 # ──────────────────────────────────────────────
 
 from django.contrib import admin
@@ -10,7 +10,7 @@ from .models import Incident, IncidentUpdate, IncidentMonitor
 class IncidentUpdateInline(admin.TabularInline):
     """
     Shows all updates for an incident inline on the
-    incident detail page. Read-only — updates are
+    incident detail page. Read-only- updates are
     posted via the API, not the admin.
     """
     model = IncidentUpdate

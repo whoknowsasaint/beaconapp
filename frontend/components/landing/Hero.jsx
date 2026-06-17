@@ -16,7 +16,7 @@ export default function Hero() {
 
   return (
     <section className="relative flex flex-col items-center text-center px-6 pt-32 pb-16 overflow-hidden">
-      {/* Background — subtle top glow, NOT a big circular blob */}
+      {/* Background- subtle top glow, NOT a big circular blob */}
       <div
         aria-hidden="true"
         className="absolute inset-0 pointer-events-none"

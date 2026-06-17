@@ -1,5 +1,5 @@
 // ──────────────────────────────────────────────
-// Beacon — Tailwind CSS Configuration
+// Beacon- Tailwind CSS Configuration
 // Extends Tailwind with Beacon's full design token system.
 // Every color, font, spacing, and animation used in the
 // product is defined here as a named token.

@@ -1,5 +1,5 @@
 # ──────────────────────────────────────────────
-# Beacon — API Key Serializers
+# Beacon- API Key Serializers
 # ──────────────────────────────────────────────
 
 from rest_framework import serializers
@@ -49,12 +49,12 @@ class APIKeyCreateSerializer(serializers.Serializer):
 class APIKeyCreatedSerializer(serializers.Serializer):
     """
     Response shape for a newly created API key.
-    Includes the raw key — shown exactly once.
+    Includes the raw key- shown exactly once.
     """
     id      = serializers.UUIDField()
     name    = serializers.CharField()
     prefix  = serializers.CharField()
     raw_key = serializers.CharField(
-        help_text="The full API key. Store this now — it will not be shown again."
+        help_text="The full API key. Store this now- it will not be shown again."
     )
     created_at = serializers.DateTimeField()

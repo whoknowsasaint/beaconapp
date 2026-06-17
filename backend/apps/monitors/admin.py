@@ -1,5 +1,5 @@
 # ──────────────────────────────────────────────
-# Beacon — Monitors Admin
+# Beacon- Monitors Admin
 # Registers Monitor and MonitorCheck with the
 # Django admin for data inspection during development.
 # ──────────────────────────────────────────────
@@ -69,7 +69,7 @@ class MonitorCheckAdmin(admin.ModelAdmin):
     ]
     ordering = ["-checked_at"]
 
-    # MonitorChecks are never created manually in admin —
+    # MonitorChecks are never created manually in admin-
     # they are written by the checker worker only.
     def has_add_permission(self, request):
         return False

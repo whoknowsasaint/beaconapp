@@ -1,5 +1,5 @@
 # ──────────────────────────────────────────────
-# Beacon — API Key + Auth Tests
+# Beacon- API Key + Auth Tests
 # Run with: python manage.py test apps.api_keys
 # ──────────────────────────────────────────────
 

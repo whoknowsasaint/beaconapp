@@ -1,5 +1,5 @@
 # ──────────────────────────────────────────────
-# Beacon — Production Settings
+# Beacon- Production Settings
 # Extends base settings with production hardening.
 # All secrets must come from environment variables.
 # ──────────────────────────────────────────────

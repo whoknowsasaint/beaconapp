@@ -1,5 +1,5 @@
 # ──────────────────────────────────────────────
-# Beacon — Status Pages Admin
+# Beacon- Status Pages Admin
 # ──────────────────────────────────────────────
 
 from django.contrib import admin

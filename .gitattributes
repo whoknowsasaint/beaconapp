@@ -1,5 +1,5 @@
 # ──────────────────────────────────────────────
-# Beacon — .gitattributes
+# Beacon- .gitattributes
 # Normalizes line endings across all platforms.
 # Prevents Windows CRLF from corrupting files.
 # ──────────────────────────────────────────────
@@ -24,7 +24,7 @@
 *.env*      text eol=lf
 *.gitignore text eol=lf
 
-# Binary files — do not modify line endings
+# Binary files- do not modify line endings
 *.png       binary
 *.jpg       binary
 *.jpeg      binary

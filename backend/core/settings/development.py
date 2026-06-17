@@ -1,5 +1,5 @@
 # ──────────────────────────────────────────────
-# Beacon — Development Settings
+# Beacon- Development Settings
 # Extends base settings with dev-only overrides.
 # Never use in production.
 # ──────────────────────────────────────────────

@@ -1,5 +1,5 @@
 # ──────────────────────────────────────────────
-# Beacon — Incident Model Tests
+# Beacon- Incident Model Tests
 # Run with: python manage.py test apps.incidents
 # ──────────────────────────────────────────────
 
@@ -21,7 +21,7 @@ class IncidentModelTest(TestCase):
         )
         self.incident = Incident.objects.create(
             owner=self.user,
-            title="API Gateway — Elevated Error Rate",
+            title="API Gateway- Elevated Error Rate",
             severity=Incident.Severity.CRITICAL,
             status=Incident.IncidentStatus.INVESTIGATING,
             started_at=timezone.now(),

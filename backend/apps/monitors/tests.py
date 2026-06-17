@@ -1,5 +1,5 @@
 # ──────────────────────────────────────────────
-# Beacon — Monitor Model Tests
+# Beacon- Monitor Model Tests
 # Basic unit tests validating model behaviour,
 # field constraints, and helper methods.
 # Run with: python manage.py test apps.monitors

@@ -1,5 +1,5 @@
 /* ──────────────────────────────────────────────
-   Beacon — SceneWrapper Module CSS
+   Beacon- SceneWrapper Module CSS
    Layout and structural styles for the scene
    container. Motion, colors, and materials are
    handled by globals.css and Tailwind.
@@ -35,7 +35,7 @@
   width: 100%;
   max-width: 900px;
 
-  /* Default aspect ratio — overridden per scene via className */
+  /* Default aspect ratio- overridden per scene via className */
   /* aspect-ratio: 16 / 9; */
 
   display: flex;

@@ -1,107 +1,62 @@
-from django.db import connection
-from django.utils import timezone
+import uuid
 from datetime import timedelta
+from django.utils import timezone
+from django.db.models import Min, Max
+from apps.monitors.models import MonitorCheck
 
 
-def get_daily_uptime(monitor, days=90):
-    """
-    Returns a list of daily uptime buckets for the given monitor.
-
-    Each bucket is a dict:
-        {
-            "date":   "2024-03-15",   -- UTC date string
-            "status": "up",           -- dominant status for the day
-            "up":     142,            -- count of UP checks
-            "total":  144,            -- count of all checks
-            "pct":    98.61,          -- percentage of UP checks
-        }
-
-    Days with no checks have status "no_data".
-    List is ordered oldest to newest (left to right for UptimeBars).
-    Total length is always exactly `days` items.
-    """
-
+def get_daily_uptime(monitor_or_id, days=90):
     since = timezone.now() - timedelta(days=days)
 
-    rows = _query_daily_buckets(monitor.id, since)
-    by_date = {row["date"]: row for row in rows}
+    if isinstance(monitor_or_id, uuid.UUID):
+        monitor_id = monitor_or_id
+    elif hasattr(monitor_or_id, "id"):
+        monitor_id = monitor_or_id.id
+    else:
+        monitor_id = uuid.UUID(str(monitor_or_id))
 
-    result = []
-    for i in range(days):
-        date = (since + timedelta(days=i + 1)).date()
-        key  = str(date)
-
-        if key in by_date:
-            row = by_date[key]
-            result.append({
-                "date":   key,
-                "status": _dominant_status(row),
-                "up":     row["up_count"],
-                "total":  row["total_count"],
-                "pct":    round((row["up_count"] / row["total_count"]) * 100, 2)
-                          if row["total_count"] > 0 else 0.0,
-            })
-        else:
-            result.append({
-                "date":   key,
-                "status": "no_data",
-                "up":     0,
-                "total":  0,
-                "pct":    None,
-            })
-
-    return result
+    rows = _query_daily_buckets(monitor_id, since)
+    return _build_buckets(rows, days)
 
 
 def _query_daily_buckets(monitor_id, since):
-    """
-    Aggregates MonitorCheck records into daily buckets using a single
-    SQL query. Uses the idx_check_monitor_time compound index.
-    """
+    checks = (
+        MonitorCheck.objects
+        .filter(monitor_id=monitor_id, checked_at__gte=since)
+        .extra(select={"day": "date(checked_at)"})
+        .values("day", "status")
+        .order_by("day")
+    )
 
-    sql = """
-        SELECT
-            DATE(checked_at AT TIME ZONE 'UTC') AS date,
-            COUNT(*)                             AS total_count,
-            COUNT(*) FILTER (WHERE status = 'up') AS up_count,
-            COUNT(*) FILTER (WHERE status = 'down')    AS down_count,
-            COUNT(*) FILTER (WHERE status = 'timeout') AS timeout_count,
-            COUNT(*) FILTER (WHERE status = 'error')   AS error_count
-        FROM monitor_checks
-        WHERE
-            monitor_id = %s
-            AND checked_at >= %s
-        GROUP BY DATE(checked_at AT TIME ZONE 'UTC')
-        ORDER BY date ASC
-    """
+    buckets = {}
+    for row in checks:
+        day = str(row["day"])
+        if day not in buckets:
+            buckets[day] = {"up": 0, "down": 0}
+        if row["status"] == "up":
+            buckets[day]["up"] += 1
+        else:
+            buckets[day]["down"] += 1
 
-    with connection.cursor() as cursor:
-        cursor.execute(sql, [str(monitor_id), since])
-        columns = [col[0] for col in cursor.description]
-        return [
-            dict(zip(columns, row))
-            for row in cursor.fetchall()
-        ]
+    return buckets
 
 
-def _dominant_status(row):
-    """
-    Derives a single status label for a day from its check counts.
+def _build_buckets(rows, days):
+    today   = timezone.now().date()
+    result  = []
 
-    Priority: if any checks were errors/down and they exceed 20% of
-    total checks, the day is "down". If timeouts exceed 20%, "timeout".
-    Otherwise "up".
-    """
+    for i in range(days - 1, -1, -1):
+        day     = today - timedelta(days=i)
+        day_str = str(day)
+        counts  = rows.get(day_str)
 
-    total = row["total_count"]
-    if total == 0:
-        return "no_data"
+        if counts is None:
+            result.append({"date": day_str, "status": "no_data", "up": 0, "down": 0})
+        elif counts["down"] == 0:
+            result.append({"date": day_str, "status": "up",   "up": counts["up"],   "down": 0})
+        elif counts["up"] == 0:
+            result.append({"date": day_str, "status": "down", "up": 0, "down": counts["down"]})
+        else:
+            result.append({"date": day_str, "status": "degraded", "up": counts["up"], "down": counts["down"]})
 
-    down_pct    = (row["down_count"] + row["error_count"]) / total
-    timeout_pct = row["timeout_count"] / total
-
-    if down_pct > 0.20:
-        return "down"
-    if timeout_pct > 0.20:
-        return "timeout"
-    return "up"
+    return result

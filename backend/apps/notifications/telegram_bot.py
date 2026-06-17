@@ -127,9 +127,9 @@ def _handle_help(chat_id: str) -> None:
         chat_id,
         "📡 <b>Beacon Alerts Bot</b>\n\n"
         "<b>Commands:</b>\n"
-        "/start {slug} — Subscribe to a status page\n"
-        "/stop — Unsubscribe from all pages\n"
-        "/help — Show this message\n\n"
+        "/start {slug}- Subscribe to a status page\n"
+        "/stop- Unsubscribe from all pages\n"
+        "/help- Show this message\n\n"
         "To subscribe, click the notification link on a Beacon status page.",
     )
 

@@ -1,5 +1,5 @@
 # ──────────────────────────────────────────────
-# Beacon — API Key Authentication Backend
+# Beacon- API Key Authentication Backend
 #
 # Plugs into DRF's authentication system.
 # Reads the Authorization header, extracts the key,
@@ -31,7 +31,7 @@ class APIKeyAuthentication(BaseAuthentication):
         auth_header = request.META.get("HTTP_AUTHORIZATION", "")
 
         if not auth_header.startswith(self.HEADER_PREFIX + " "):
-            # No Bearer header — not our responsibility.
+            # No Bearer header- not our responsibility.
             # Return None so DRF tries SessionAuthentication next.
             return None
 

@@ -1,5 +1,5 @@
 # ──────────────────────────────────────────────
-# Beacon — Custom Exception Handler
+# Beacon- Custom Exception Handler
 #
 # Standardises every error response to:
 # {
@@ -40,7 +40,7 @@ def beacon_exception_handler(exc, context):
     response = exception_handler(exc, context)
 
     if response is None:
-        # Unhandled exception — 500
+        # Unhandled exception- 500
         logger.exception(
             "Unhandled exception in %s",
             context.get("view", "unknown view"),
@@ -66,7 +66,7 @@ def beacon_exception_handler(exc, context):
         if isinstance(exc.detail, dict):
             fields = _flatten_errors(exc.detail)
         elif isinstance(exc.detail, list):
-            # Non-field validation error — put in message
+            # Non-field validation error- put in message
             message = _join_messages(exc.detail)
 
         response.data = {
@@ -112,7 +112,7 @@ def beacon_exception_handler(exc, context):
         }
 
     else:
-        # Any other DRF exception — wrap generically
+        # Any other DRF exception- wrap generically
         response.data = {
             "error":   "server",
             "message": str(exc),

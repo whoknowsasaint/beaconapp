@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # ──────────────────────────────────────────────
-# Beacon — Django Management Utility
+# Beacon- Django Management Utility
 # ──────────────────────────────────────────────
 
 import os

@@ -1,5 +1,5 @@
 /* ──────────────────────────────────────────────
-   Beacon — Scene System CSS
+   Beacon- Scene System CSS
    Scene-specific tokens and utility classes that
    extend globals.css for the Product Scene System.
    Import this in scene components that need it,
@@ -9,27 +9,27 @@
 /* ─── Scene Background Tokens ───────────────── */
 
 :root {
-  /* Scene 01 — Uptime */
+  /* Scene 01- Uptime */
   --scene-uptime-bg: #080B10;
 
-  /* Scene 02 — Incident */
+  /* Scene 02- Incident */
   --scene-incident-bg: #09090B;
 
-  /* Scene 03 — Telegram */
+  /* Scene 03- Telegram */
   --scene-telegram-bg: #080B10;
   --scene-telegram-accent: #229ED9;
 
-  /* Scene 04 — Slack */
+  /* Scene 04- Slack */
   --scene-slack-bg: #080B10;
   --scene-slack-accent: #4A154B;
 
-  /* Scene 05 — Status Page */
+  /* Scene 05- Status Page */
   --scene-statuspage-bg: #0C1018;
 
-  /* Scene 06 — Reporting */
+  /* Scene 06- Reporting */
   --scene-reporting-bg: #080B10;
 
-  /* Scene 07 — API */
+  /* Scene 07- API */
   --scene-api-bg: #060809;
   --scene-api-accent: rgba(34, 197, 94, 0.2);
 }
