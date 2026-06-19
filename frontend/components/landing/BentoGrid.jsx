@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect, useRef } from "react"
+import { useBreakpoint } from "@/lib/useBreakpoint"
 import { motion, AnimatePresence, useReducedMotion } from "framer-motion"
 
 /* ─── Shared animation hook ─────────────────────────────────────────────────── */
@@ -584,6 +585,8 @@ function TelegramVisual() {
   const { ref, active, onMouseEnter, onMouseLeave } = useFeatureAnimation()
   const [showNotif, setShowNotif] = useState(false)
   const reducedMotion              = useReducedMotion()
+  const { isMobile, mounted } = useBreakpoint()
+  const mobile = mounted && isMobile
 
   useEffect(() => {
     if (!active) { setShowNotif(false); return }
@@ -600,7 +603,7 @@ function TelegramVisual() {
     >
       <div style={{ position: "absolute", top: 20, left: "50%", transform: "translateX(-50%)" }}>
         <motion.div
-          animate={{ y: active ? -40 : 0 }}
+          animate={{ y: active && !mobile ? -40 : 0 }}
           transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
           style={{ position: "relative", width: 240 }}
         >

@@ -6,6 +6,7 @@ import { isBeaconAPIError } from "@/lib/api/index.js"
 import { toast } from "@/lib/useToast.js"
 import Button from "@/components/ui/Button"
 import Input from "@/components/ui/Input"
+import StyledSelect from "@/components/ui/StyledSelect"
 
 const TYPE_OPTIONS = [
   { value: "http",  label: "HTTP / HTTPS" },
@@ -21,6 +22,8 @@ const INTERVAL_OPTIONS = [
   { value: 1800,  label: "Every 30 minutes" },
   { value: 3600,  label: "Every hour"       },
 ]
+
+const TIMEOUT_OPTIONS = [5, 10, 15, 20, 30, 45, 60].map(s => ({ value: s, label: `${s}s` }))
 
 const DEFAULTS = {
   name:                   "",
@@ -188,32 +191,24 @@ export default function MonitorForm({ existing, onSuccess, onCancel }) {
           <label className="text-sm font-medium text-beacon-text">
             Check interval
           </label>
-          <select
+          <StyledSelect
             value={form.interval}
             onChange={e => set("interval", Number(e.target.value))}
+            options={INTERVAL_OPTIONS}
             disabled={loading}
-            className="h-9 w-full rounded-lg px-3 text-sm bg-white/[0.04] border border-beacon-border text-beacon-text focus:outline-none focus:border-beacon-blue focus:ring-1 focus:ring-beacon-blue transition-colors"
-          >
-            {INTERVAL_OPTIONS.map(opt => (
-              <option key={opt.value} value={opt.value}>{opt.label}</option>
-            ))}
-          </select>
+          />
         </div>
 
         <div className="flex flex-col gap-1.5 flex-1">
           <label className="text-sm font-medium text-beacon-text">
             Timeout (seconds)
           </label>
-          <select
+          <StyledSelect
             value={form.timeout}
             onChange={e => set("timeout", Number(e.target.value))}
+            options={TIMEOUT_OPTIONS}
             disabled={loading}
-            className="h-9 w-full rounded-lg px-3 text-sm bg-white/[0.04] border border-beacon-border text-beacon-text focus:outline-none focus:border-beacon-blue focus:ring-1 focus:ring-beacon-blue transition-colors"
-          >
-            {[5, 10, 15, 20, 30, 45, 60].map(s => (
-              <option key={s} value={s}>{s}s</option>
-            ))}
-          </select>
+          />
         </div>
       </div>
 

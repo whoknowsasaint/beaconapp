@@ -2,7 +2,8 @@
 
 import { useState } from "react"
 import { useRouter } from "next/navigation"
-import { motion } from "framer-motion"
+import { motion, AnimatePresence } from "framer-motion"
+import { useBreakpoint } from "@/lib/useBreakpoint"
 
 const SECTIONS = [
   {
@@ -147,9 +148,17 @@ function Callout({ type = "info", children }) {
   )
 }
 
+const SIDEBAR_WIDTH = 220
+const CONTENT_MAX   = 760
+const CONTENT_GUTTER_DESKTOP = 56
+
 export default function DocsPage() {
-  const router        = useRouter()
-  const [active, setActive] = useState("quickstart")
+  const router               = useRouter()
+  const [active, setActive]  = useState("quickstart")
+  const [drawerOpen, setDrawerOpen] = useState(false)
+
+  const { isMobile, mounted } = useBreakpoint()
+  const mobile = mounted && isMobile
 
   function scrollTo(id) {
     setActive(id)
@@ -157,7 +166,7 @@ export default function DocsPage() {
   }
 
   return (
-    <div style={{ minHeight: "100vh", background: "#080B10", display: "flex", flexDirection: "column" }}>
+    <div style={{ minHeight: "100vh", background: "#080B10" }}>
 
       {/* Navbar */}
       <div style={{
@@ -210,60 +219,77 @@ export default function DocsPage() {
         </button>
       </div>
 
-      {/* Body */}
-      <div style={{ display: "flex", paddingTop: 56, maxWidth: 1100, margin: "0 auto", width: "100%" }}>
+      {/*
+        Outer frame defines the SAME max-width / centering math the sidebar
+        and the content both read from. This is the single source of truth —
+        nothing below this guesses a number independently.
+      */}
+      <div style={{ position: "relative", maxWidth: 1100, margin: "0 auto", paddingTop: 56 }}>
 
-        {/* Sidebar */}
-        <div style={{
-          width:         220,
-          flexShrink:    0,
-          position:      "sticky",
-          top:           56,
-          alignSelf:     "flex-start",   // ← FIX 1: added
-          height:        "calc(100vh - 56px)",
-          overflowY:     "auto",
-          padding:       "28px 20px",
-          borderRight:   "1px solid rgba(255,255,255,0.07)",
-        }}>
-          <p style={{ fontSize: 9, fontWeight: 700, color: "rgba(255,255,255,0.25)", textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: 10 }}>
-            On this page
-          </p>
-          {SECTIONS.map(s => (
-            <button
-              key={s.id}
-              onClick={() => scrollTo(s.id)}
-              style={{
-                width:        "100%",
-                display:      "flex",
-                alignItems:   "center",
-                gap:          8,
-                padding:      "7px 10px",
-                borderRadius: 7,
-                background:   active === s.id ? "rgba(59,130,246,0.1)" : "transparent",
-                border:       "none",
-                color:        active === s.id ? "#3B82F6" : "rgba(255,255,255,0.45)",
-                fontSize:     13,
-                cursor:       "pointer",
-                textAlign:    "left",
-                transition:   "all 0.15s",
-                marginBottom: 2,
-              }}
-              onMouseEnter={e => { if (active !== s.id) e.currentTarget.style.color = "rgba(255,255,255,0.75)" }}
-              onMouseLeave={e => { if (active !== s.id) e.currentTarget.style.color = "rgba(255,255,255,0.45)" }}
-            >
-              <span style={{ color: active === s.id ? "#3B82F6" : "rgba(255,255,255,0.3)", flexShrink: 0 }}>{s.icon}</span>
-              {s.label}
-            </button>
-          ))}
+        {/* Sidebar — position:fixed, but anchored to THIS frame via a wrapper
+            that itself is position:relative + the same maxWidth/margin as content.
+            No transform math, no viewport-width assumptions. */}
+        {!mobile && (
+          <div style={{ position: "absolute", top: 0, left: 0, width: SIDEBAR_WIDTH, height: "100%" }}>
+            <div style={{
+              position:    "fixed",
+              top:         56,
+              width:       SIDEBAR_WIDTH,
+              height:      "calc(100vh - 56px)",
+              overflowY:   "auto",
+              padding:     "28px 20px",
+              borderRight: "1px solid rgba(255,255,255,0.07)",
+              background:  "#080B10",
+            }}>
+              <p style={{ fontSize: 9, fontWeight: 700, color: "rgba(255,255,255,0.25)", textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: 10 }}>
+                On this page
+              </p>
+              {SECTIONS.map(s => (
+                <button
+                  key={s.id}
+                  onClick={() => scrollTo(s.id)}
+                  style={{
+                    width:        "100%",
+                    display:      "flex",
+                    alignItems:   "center",
+                    gap:          8,
+                    padding:      "7px 10px",
+                    borderRadius: 7,
+                    background:   active === s.id ? "rgba(59,130,246,0.1)" : "transparent",
+                    border:       "none",
+                    color:        active === s.id ? "#3B82F6" : "rgba(255,255,255,0.45)",
+                    fontSize:     13,
+                    cursor:       "pointer",
+                    textAlign:    "left",
+                    transition:   "all 0.15s",
+                    marginBottom: 2,
+                  }}
+                  onMouseEnter={e => { if (active !== s.id) e.currentTarget.style.color = "rgba(255,255,255,0.75)" }}
+                  onMouseLeave={e => { if (active !== s.id) e.currentTarget.style.color = "rgba(255,255,255,0.45)" }}
+                >
+                  <span style={{ color: active === s.id ? "#3B82F6" : "rgba(255,255,255,0.3)", flexShrink: 0 }}>{s.icon}</span>
+                  {s.label}
+                </button>
+              ))}
 
-          <div style={{ marginTop: 24, padding: "12px", borderRadius: 8, background: "rgba(34,197,94,0.06)", border: "1px solid rgba(34,197,94,0.15)" }}>
-            <p style={{ fontSize: 11, color: "rgba(34,197,94,0.8)", fontWeight: 600, marginBottom: 4 }}>Open Source</p>
-            <p style={{ fontSize: 11, color: "rgba(255,255,255,0.35)", lineHeight: 1.5 }}>MIT licensed. Free to self-host forever.</p>
+              <div style={{ marginTop: 24, padding: "12px", borderRadius: 8, background: "rgba(34,197,94,0.06)", border: "1px solid rgba(34,197,94,0.15)" }}>
+                <p style={{ fontSize: 11, color: "rgba(34,197,94,0.8)", fontWeight: 600, marginBottom: 4 }}>Open Source</p>
+                <p style={{ fontSize: 11, color: "rgba(255,255,255,0.35)", lineHeight: 1.5 }}>MIT licensed. Free to self-host forever.</p>
+              </div>
+            </div>
           </div>
-        </div>
+        )}
 
-        {/* Content */}
-        <div style={{ flex: 1, padding: "40px 56px 120px", maxWidth: 760 }}>
+        {/* Content — pushed right by the sidebar's track width via marginLeft.
+            The sidebar's fixed element is positioned by a wrapper that lives at
+            the exact same x-coordinate as this content's left edge, because
+            both are children of the SAME centered, max-width frame above. */}
+        <div style={{
+          marginLeft: mobile ? 0 : SIDEBAR_WIDTH,
+          padding:    mobile ? "24px 20px 80px" : `40px ${CONTENT_GUTTER_DESKTOP}px 120px`,
+          minWidth:   0,
+          maxWidth:   mobile ? "100%" : CONTENT_MAX,
+        }}>
 
           <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }}>
 
@@ -574,7 +600,7 @@ server {
 
           </motion.div>
 
-          {/* FIX 2: Footer */}
+          {/* Footer */}
           <div style={{
             marginTop:     64,
             paddingTop:    32,
@@ -627,6 +653,105 @@ server {
 
         </div>
       </div>
+
+      {/* Mobile: floating "On this page" button */}
+      {mobile && (
+        <>
+          <motion.button
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.5 }}
+            onClick={() => setDrawerOpen(true)}
+            style={{
+              position:       "fixed",
+              bottom:         24,
+              right:          20,
+              zIndex:         40,
+              height:         40,
+              padding:        "0 16px",
+              borderRadius:   "9999px",
+              background:     "rgba(8,11,16,0.9)",
+              border:         "1px solid rgba(255,255,255,0.15)",
+              color:          "rgba(255,255,255,0.75)",
+              fontSize:       13,
+              fontWeight:     500,
+              cursor:         "pointer",
+              display:        "flex",
+              alignItems:     "center",
+              gap:            6,
+              backdropFilter: "blur(12px)",
+              boxShadow:      "0 4px 20px rgba(0,0,0,0.5)",
+            }}
+          >
+            <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="1.5" style={{ width: 12, height: 12 }}>
+              <path d="M2 4h10M2 7h7M2 10h5" strokeLinecap="round"/>
+            </svg>
+            On this page
+          </motion.button>
+
+          <AnimatePresence>
+            {drawerOpen && (
+              <>
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  onClick={() => setDrawerOpen(false)}
+                  style={{ position: "fixed", inset: 0, zIndex: 50, background: "rgba(0,0,0,0.6)", backdropFilter: "blur(4px)" }}
+                />
+                <motion.div
+                  initial={{ y: "100%" }}
+                  animate={{ y: 0 }}
+                  exit={{ y: "100%" }}
+                  transition={{ type: "spring", stiffness: 280, damping: 28 }}
+                  style={{
+                    position:    "fixed",
+                    bottom:      0,
+                    left:        0,
+                    right:       0,
+                    zIndex:      51,
+                    background:  "#0D1117",
+                    borderRadius:"20px 20px 0 0",
+                    border:      "1px solid rgba(255,255,255,0.1)",
+                    padding:     "20px 20px calc(24px + env(safe-area-inset-bottom))",
+                    maxHeight:   "70vh",
+                    overflowY:   "auto",
+                  }}
+                >
+                  <div style={{ width: 36, height: 4, borderRadius: 2, background: "rgba(255,255,255,0.2)", margin: "0 auto 20px" }} />
+                  <p style={{ fontSize: 11, fontWeight: 600, color: "rgba(255,255,255,0.3)", textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: 12 }}>
+                    On this page
+                  </p>
+                  {SECTIONS.map(s => (
+                    <button
+                      key={s.id}
+                      onClick={() => { scrollTo(s.id); setDrawerOpen(false) }}
+                      style={{
+                        width:        "100%",
+                        display:      "flex",
+                        alignItems:   "center",
+                        gap:          10,
+                        padding:      "12px 14px",
+                        borderRadius: 9,
+                        background:   active === s.id ? "rgba(59,130,246,0.1)" : "transparent",
+                        border:       "none",
+                        color:        active === s.id ? "#3B82F6" : "rgba(255,255,255,0.55)",
+                        fontSize:     15,
+                        cursor:       "pointer",
+                        textAlign:    "left",
+                        marginBottom: 2,
+                      }}
+                    >
+                      <span style={{ color: active === s.id ? "#3B82F6" : "rgba(255,255,255,0.3)" }}>{s.icon}</span>
+                      {s.label}
+                    </button>
+                  ))}
+                </motion.div>
+              </>
+            )}
+          </AnimatePresence>
+        </>
+      )}
     </div>
   )
 }

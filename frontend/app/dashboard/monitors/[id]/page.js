@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from "react"
 import { useRouter, useParams } from "next/navigation"
 import { motion, AnimatePresence } from "framer-motion"
 import usePolling from "@/lib/usePolling"
+import { useBreakpoint } from "@/lib/useBreakpoint"
 
 const API = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000"
 
@@ -236,6 +237,9 @@ export default function MonitorDetailPage() {
   const params  = useParams()
   const id      = params?.id
 
+  const { isMobile, mounted } = useBreakpoint()
+  const mobile = mounted && isMobile
+
   const [monitor,        setMonitor]        = useState(null)
   const [uptimeBuckets,  setUptimeBuckets]  = useState(null)
   const [uptimeLoading,  setUptimeLoading]  = useState(true)
@@ -370,7 +374,7 @@ export default function MonitorDetailPage() {
   ]
 
   return (
-    <div style={{ flex: 1, padding: "32px 40px", maxWidth: 1100, width: "100%" }}>
+    <div style={{ flex: 1, padding: mobile ? "20px 16px" : "32px 40px", maxWidth: mobile ? "100%" : "100%", width: "100%" }}>
 
       <button
         onClick={() => router.push("/dashboard/monitors")}
@@ -421,8 +425,14 @@ export default function MonitorDetailPage() {
         </div>
       </div>
 
-      {/* Config + Uptime – with alignItems: flex-start */}
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 2fr", gap: 12, marginBottom: 12, alignItems: "flex-start" }}>
+      {/* Config + Uptime — responsive grid */}
+      <div style={{
+        display:             "grid",
+        gridTemplateColumns: mobile ? "1fr" : "1fr 2fr",
+        gap:                 12,
+        marginBottom:        12,
+        alignItems:          "flex-start",
+      }}>
 
         {/* Configuration */}
         <div style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 12, padding: "20px 24px" }}>

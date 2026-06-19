@@ -225,7 +225,7 @@ export default function IncidentDetailPage() {
   const sevCfg         = SEVERITY_CONFIG[incident.severity] ?? SEVERITY_CONFIG.notice
 
   return (
-    <div style={{ flex: 1, padding: "32px 40px", maxWidth: 860, width: "100%" }}>
+    <div style={{ flex: 1, padding: "32px 40px", maxWidth: "100%", width: "100%" }}>
 
       <button
         onClick={() => router.push("/dashboard/incidents")}

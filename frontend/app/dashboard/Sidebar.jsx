@@ -54,7 +54,10 @@ export default function DashboardSidebar({ user }) {
       className="w-56 flex-shrink-0 flex flex-col border-r border-beacon-border"
       style={{ background: "var(--color-bg-elevated)" }}
     >
-      <div className="h-14 flex items-center gap-2.5 px-4 border-b border-beacon-border">
+      <div 
+        className="h-14 flex items-center gap-2.5 px-4 border-b border-beacon-border cursor-pointer hover:bg-white/[0.04] transition-colors"
+        onClick={() => router.push("/")}
+      >
         <BeaconMark />
         <span className="text-sm font-semibold text-beacon-text tracking-tight">
           Beacon
@@ -79,16 +82,18 @@ export default function DashboardSidebar({ user }) {
       </nav>
 
       <div className="px-2 py-3 border-t border-beacon-border">
-        <div className="px-2 py-1.5 mb-1">
-          <p className="text-xs font-medium text-beacon-text truncate">
-            {user.username}
-          </p>
-          {user.email && (
-            <p className="text-xs text-beacon-text-faint truncate">
-              {user.email}
+        {user && (
+          <div className="px-2 py-1.5 mb-1">
+            <p className="text-xs font-medium text-beacon-text truncate">
+              {user.username}
             </p>
-          )}
-        </div>
+            {user.email && (
+              <p className="text-xs text-beacon-text-faint truncate">
+                {user.email}
+              </p>
+            )}
+          </div>
+        )}
 
         <button
           onClick={handleLogout}
