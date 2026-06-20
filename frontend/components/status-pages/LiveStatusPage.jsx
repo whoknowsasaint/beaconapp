@@ -178,9 +178,21 @@ function combineUptimeBuckets(monitors) {
 }
 
 export default function LiveStatusPage({ initialPage, slug }) {
+  // ── All hooks called unconditionally, every render, in the same order ──
   const { isMobile, mounted } = useBreakpoint()
   const mobile = mounted && isMobile
 
+  const [updated, setUpdated] = useState(new Date())
+  useEffect(() => {
+    const id = setInterval(() => setUpdated(new Date()), 30000)
+    return () => clearInterval(id)
+  }, [])
+
+  // Safe fallback so useMemo never touches undefined when initialPage hasn't loaded yet
+  const monitorsForMemo = initialPage?.monitors || []
+  const combinedBuckets = useMemo(() => combineUptimeBuckets(monitorsForMemo), [monitorsForMemo])
+
+  // ── Early return now happens AFTER every hook has already run ──
   if (!initialPage) {
     return (
       <div style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", color: "rgba(255,255,255,0.5)", fontSize: 14 }}>
@@ -195,14 +207,6 @@ export default function LiveStatusPage({ initialPage, slug }) {
   const brandHex = `#${page.brand_color ?? "3B82F6"}`
   const hasIncidents = page.active_incidents?.length > 0
   const hasMonitors = page.monitors?.length > 0
-
-  const [updated, setUpdated] = useState(new Date())
-  useEffect(() => {
-    const id = setInterval(() => setUpdated(new Date()), 30000)
-    return () => clearInterval(id)
-  }, [])
-
-  const combinedBuckets = useMemo(() => combineUptimeBuckets(page.monitors || []), [page.monitors])
   const overallUptimePct = combinedBuckets.length > 0 ? computeUptimePercentage(combinedBuckets) : null
 
   return (
@@ -386,56 +390,7 @@ export default function LiveStatusPage({ initialPage, slug }) {
 
       {/*
         Subscribe CTA — disabled for now per request.
-        Re-enable by removing this comment block and the closing comment below
-        once email/Telegram subscription flow is ready to ship.
-
-      {page.allow_subscriptions && (
-        <div style={{ maxWidth: 720, margin: "0 auto", width: "100%", padding: mobile ? "0 16px 28px" : "0 20px 32px" }}>
-          <div style={{
-            borderRadius: 16,
-            border:       "1px solid rgba(255,255,255,0.08)",
-            background:   "rgba(255,255,255,0.02)",
-            padding:      mobile ? "16px 16px" : "18px 20px",
-            display:      "flex",
-            alignItems:   mobile ? "flex-start" : "center",
-            justifyContent: "space-between",
-            gap:          16,
-            flexWrap:     "wrap",
-            flexDirection: mobile ? "column" : "row",
-          }}>
-            <div>
-              <p style={{ fontSize: 14, fontWeight: 600, color: "rgba(255,255,255,0.85)", marginBottom: 2 }}>
-                Stay informed
-              </p>
-              <p style={{ fontSize: 12, color: "rgba(255,255,255,0.4)" }}>
-                Get notified when incidents are created or resolved.
-              </p>
-            </div>
-            
-              href={`/status/${slug}/subscribe`}
-              style={{
-                display: "inline-flex",
-                alignItems: "center",
-                justifyContent: "center",
-                height: 40,
-                padding: "0 20px",
-                fontSize: 13,
-                fontWeight: 600,
-                borderRadius: 10,
-                background: brandHex,
-                color: "white",
-                textDecoration: "none",
-                boxShadow: `0 4px 14px ${brandHex}40`,
-                flexShrink: 0,
-                width: mobile ? "100%" : "auto",
-              }}
-            >
-              Subscribe
-            </a>
-          </div>
-        </div>
-      )}
-
+        Re-enable once email/Telegram subscription flow is ready to ship.
       */}
 
       {/* Footer */}
