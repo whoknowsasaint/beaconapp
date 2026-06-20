@@ -1,435 +1,481 @@
 "use client"
 
-import { useState, useCallback } from "react"
-import { motion, AnimatePresence } from "framer-motion"
-import usePolling from "@/lib/usePolling"
+import { useState, useEffect, useMemo } from "react"
+import StatusBadge from "@/components/ui/StatusBadge"
+import UptimeBars from "@/components/monitors/UptimeBars"
+import { useBreakpoint } from "@/lib/useBreakpoint"
 
-const API_URL =
-  typeof window !== "undefined"
-    ? (process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000")
-    : "http://localhost:8000"
-
-async function fetchPageData(slug) {
-  const res = await fetch(`${API_URL}/api/v1/status-pages/${slug}/public/`, { cache: "no-store" })
-  if (!res.ok) return null
-  const page = await res.json()
-
-  try {
-    const uptimeRes = await fetch(
-      `${API_URL}/api/v1/status-pages/${slug}/uptime/?days=90`,
-      { cache: "no-store" }
-    )
-    if (uptimeRes.ok) {
-      const uptimeData = await uptimeRes.json()
-      const uptimeMap  = {}
-      for (const mon of uptimeData.monitors ?? []) uptimeMap[mon.id] = mon.buckets ?? []
-      return {
-        ...page,
-        monitors: (page.monitors ?? []).map(m => ({
-          ...m,
-          uptime_buckets: m.show_uptime_history ? (uptimeMap[m.id] ?? []) : [],
-        })),
-      }
-    }
-  } catch {}
-
-  return page
+const OVERALL_CONFIG = {
+  operational: {
+    label: "All Systems Operational",
+    color: "#22C55E",
+    bg:    "rgba(34,197,94,0.08)",
+    border:"rgba(34,197,94,0.22)",
+  },
+  degraded: {
+    label: "Partial Degradation",
+    color: "#F59E0B",
+    bg:    "rgba(245,158,11,0.08)",
+    border:"rgba(245,158,11,0.22)",
+  },
+  outage: {
+    label: "Service Disruption",
+    color: "#EF4444",
+    bg:    "rgba(239,68,68,0.08)",
+    border:"rgba(239,68,68,0.22)",
+  },
 }
 
-function getOverallStatus(page) {
-  const monitors = page.monitors ?? []
-  if (monitors.some(m => m.status === "outage"))   return "outage"
-  if (monitors.some(m => m.status === "degraded"))  return "degraded"
-  const active = (page.active_incidents ?? []).filter(i => i.status !== "resolved")
-  if (active.length > 0)                            return "degraded"
-  return "operational"
+function formatDate(str) {
+  if (!str) return ""
+  return new Date(str).toLocaleString("en-US", {
+    month: "long",
+    day:   "numeric",
+    hour:  "2-digit",
+    minute:"2-digit",
+    timeZoneName: "short",
+  })
 }
 
-const STATUS_CONFIG = {
-  operational: { label: "All Systems Operational", color: "#22C55E", bg: "rgba(34,197,94,0.08)",  border: "rgba(34,197,94,0.2)"  },
-  degraded:    { label: "Partial Outage",           color: "#F59E0B", bg: "rgba(245,158,11,0.08)", border: "rgba(245,158,11,0.2)" },
-  outage:      { label: "Major Outage",             color: "#EF4444", bg: "rgba(239,68,68,0.08)",  border: "rgba(239,68,68,0.2)"  },
+function formatTime(date) {
+  return date.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit", second: "2-digit" })
 }
 
-const MONITOR_STATUS = {
-  operational: { label: "Operational", color: "#22C55E", bg: "rgba(34,197,94,0.1)",  border: "rgba(34,197,94,0.2)"  },
-  degraded:    { label: "Degraded",    color: "#F59E0B", bg: "rgba(245,158,11,0.1)", border: "rgba(245,158,11,0.2)" },
-  outage:      { label: "Outage",      color: "#EF4444", bg: "rgba(239,68,68,0.1)",  border: "rgba(239,68,68,0.2)"  },
-  pending:     { label: "Pending",     color: "#6B7280", bg: "rgba(107,114,128,0.1)",border: "rgba(107,114,128,0.2)"},
-  paused:      { label: "Paused",      color: "#6B7280", bg: "rgba(107,114,128,0.1)",border: "rgba(107,114,128,0.2)"},
-}
-
-const INCIDENT_STATUS = {
-  investigating: { label: "Investigating", color: "#EF4444" },
-  identified:    { label: "Identified",    color: "#F59E0B" },
-  monitoring:    { label: "Monitoring",    color: "#3B82F6" },
-  resolved:      { label: "Resolved",      color: "#22C55E" },
-}
-
-function StatusBadge({ status }) {
-  const cfg = MONITOR_STATUS[status] ?? MONITOR_STATUS.pending
+function BeaconMark({ size = 24 }) {
   return (
-    <span style={{
-      display:       "inline-flex",
-      alignItems:    "center",
-      gap:           5,
-      padding:       "3px 10px",
-      borderRadius:  "9999px",
-      fontSize:      11,
-      fontWeight:    500,
-      letterSpacing: "0.03em",
-      background:    cfg.bg,
-      color:         cfg.color,
-      border:        `1px solid ${cfg.border}`,
-      flexShrink:    0,
-    }}>
-      <span style={{ width: 5, height: 5, borderRadius: "50%", background: cfg.color, display: "inline-block" }} />
-      {cfg.label}
-    </span>
-  )
-}
-
-function UptimeBars({ buckets }) {
-  if (!buckets || buckets.length === 0) return null
-  const display = buckets.slice(-60)
-
-  return (
-    <div style={{ display: "flex", gap: 2, alignItems: "flex-end", height: 24 }}>
-      {display.map((b, i) => {
-        const color =
-          b.status === "up"      ? "#22C55E" :
-          b.status === "down"    ? "#EF4444" :
-          b.status === "degraded"? "#F59E0B" :
-          "rgba(255,255,255,0.1)"
-        return (
-          <motion.div
-            key={i}
-            title={`${b.date}: ${b.status}`}
-            initial={{ scaleY: 0 }}
-            animate={{ scaleY: 1 }}
-            transition={{ duration: 0.3, delay: i * 0.008, ease: [0.16, 1, 0.3, 1] }}
-            style={{
-              flex:            "0 0 3px",
-              height:          b.status === "no_data" ? 8 : 20,
-              borderRadius:    1.5,
-              background:      color,
-              opacity:         b.status === "no_data" ? 0.2 : 0.75,
-              transformOrigin: "bottom",
-              cursor:          "default",
-            }}
-          />
-        )
-      })}
-    </div>
+    <svg width={size} height={size} viewBox="0 0 28 28" fill="none">
+      <rect width="28" height="28" rx="7" fill="#1D4ED8"/>
+      <circle cx="10" cy="18" r="2.2" fill="white"/>
+      <path d="M 10 13.5 A 4.5 4.5 0 0 1 14.5 18" stroke="white" strokeWidth="1.8" strokeLinecap="round" fill="none" opacity="0.9"/>
+      <path d="M 10 9.5 A 8.5 8.5 0 0 1 18.5 18" stroke="white" strokeWidth="1.8" strokeLinecap="round" fill="none" opacity="0.55"/>
+      <path d="M 10 5.5 A 12.5 12.5 0 0 1 22.5 18" stroke="white" strokeWidth="1.8" strokeLinecap="round" fill="none" opacity="0.25"/>
+    </svg>
   )
 }
 
 function IncidentCard({ incident }) {
-  const [expanded, setExpanded] = useState(false)
-  const cfg = INCIDENT_STATUS[incident.status] ?? INCIDENT_STATUS.investigating
-
-  function formatTime(str) {
-    if (!str) return ""
-    return new Date(str).toLocaleDateString("en-US", {
-      month: "long", day: "numeric",
-      hour:  "2-digit", minute: "2-digit",
-    })
-  }
-
   return (
-    <motion.div
-      layout
-      initial={{ opacity: 0, y: 8 }}
-      animate={{ opacity: 1, y: 0 }}
+    <div
       style={{
-        background:   "rgba(255,255,255,0.03)",
-        border:       "1px solid rgba(255,255,255,0.08)",
-        borderRadius: 12,
-        overflow:     "hidden",
-        cursor:       "pointer",
+        border:       "1px solid rgba(255,255,255,0.09)",
+        borderLeft:   "3px solid #EF4444",
+        borderRadius: 16,
+        padding:      "18px 20px",
+        marginBottom: 12,
+        background:   "rgba(239,68,68,0.04)",
       }}
-      onClick={() => setExpanded(e => !e)}
     >
-      <div style={{ padding: "16px 20px", display: "flex", alignItems: "center", justifyContent: "space-between", gap: 16 }}>
-        <div style={{ flex: 1, minWidth: 0 }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 4 }}>
-            <span style={{ width: 7, height: 7, borderRadius: "50%", background: cfg.color, display: "inline-block", flexShrink: 0 }} />
-            <p style={{ fontSize: 14, fontWeight: 600, color: "rgba(255,255,255,0.9)", margin: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-              {incident.title}
-            </p>
-          </div>
-          <p style={{ fontSize: 12, color: "rgba(255,255,255,0.35)", margin: 0 }}>
-            Started {formatTime(incident.started_at)}
+      <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 12, marginBottom: 8 }}>
+        <div style={{ minWidth: 0 }}>
+          <h3 style={{ fontSize: 15, fontWeight: 600, color: "rgba(255,255,255,0.92)", marginBottom: 3 }}>
+            {incident.title}
+          </h3>
+          <p style={{ fontSize: 12, color: "rgba(255,255,255,0.4)" }}>
+            Started {formatDate(incident.started_at)}
           </p>
         </div>
-        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-          <span style={{
-            fontSize: 11, fontWeight: 600, color: cfg.color,
-            padding: "3px 10px", borderRadius: "9999px",
-            background: `${cfg.color}18`, border: `1px solid ${cfg.color}35`,
-          }}>
-            {cfg.label}
-          </span>
-          <motion.svg
-            viewBox="0 0 10 6" fill="none" stroke="rgba(255,255,255,0.35)"
-            strokeWidth="1.5" style={{ width: 10, height: 10, flexShrink: 0 }}
-            animate={{ rotate: expanded ? 180 : 0 }}
-            transition={{ duration: 0.2 }}
-          >
-            <path d="M1 1l4 4 4-4" strokeLinecap="round" strokeLinejoin="round"/>
-          </motion.svg>
+        <div style={{ flexShrink: 0 }}>
+          <StatusBadge status={incident.status} />
         </div>
       </div>
 
-      <AnimatePresence>
-        {expanded && (incident.updates ?? []).length > 0 && (
-          <motion.div
-            initial={{ height: 0, opacity: 0 }}
-            animate={{ height: "auto", opacity: 1 }}
-            exit={{    height: 0, opacity: 0 }}
-            transition={{ duration: 0.25 }}
-            style={{ overflow: "hidden", borderTop: "1px solid rgba(255,255,255,0.06)" }}
-          >
-            <div style={{ padding: "14px 20px", display: "flex", flexDirection: "column", gap: 10 }}>
-              {(incident.updates ?? []).map((u, i) => (
-                <div key={i} style={{ display: "flex", gap: 12 }}>
-                  <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 0 }}>
-                    <span style={{ width: 6, height: 6, borderRadius: "50%", background: "rgba(255,255,255,0.2)", flexShrink: 0, marginTop: 4 }} />
-                    {i < (incident.updates ?? []).length - 1 && (
-                      <div style={{ width: 1, flex: 1, background: "rgba(255,255,255,0.06)", marginTop: 4 }} />
-                    )}
-                  </div>
-                  <div style={{ flex: 1, paddingBottom: 8 }}>
-                    <p style={{ fontSize: 11, color: "rgba(255,255,255,0.3)", margin: "0 0 4px" }}>
-                      {formatTime(u.created_at)}
-                    </p>
-                    <p style={{ fontSize: 13, color: "rgba(255,255,255,0.65)", margin: 0, lineHeight: 1.5 }}>
-                      {u.message}
-                    </p>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </motion.div>
-  )
-}
+      {incident.summary && (
+        <p style={{ fontSize: 13, color: "rgba(255,255,255,0.55)", lineHeight: 1.6, marginBottom: 10 }}>
+          {incident.summary}
+        </p>
+      )}
 
-function BackgroundGrid() {
-  return (
-    <div aria-hidden="true" style={{ position: "fixed", inset: 0, zIndex: 0, pointerEvents: "none", overflow: "hidden" }}>
-      <div style={{
-        position:            "absolute",
-        inset:               0,
-        backgroundImage:     "linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px)",
-        backgroundSize:      "52px 52px",
-        maskImage:           "radial-gradient(ellipse 80% 60% at 50% 0%, black, transparent)",
-        WebkitMaskImage:     "radial-gradient(ellipse 80% 60% at 50% 0%, black, transparent)",
-      }} />
+      {incident.updates?.length > 0 && (
+        <div style={{ borderTop: "1px solid rgba(255,255,255,0.08)", paddingTop: 12, marginTop: 12, display: "flex", flexDirection: "column", gap: 11 }}>
+          {incident.updates.slice(0, 3).map(u => (
+            <div key={u.id} style={{ display: "flex", gap: 10 }}>
+              <div style={{ width: 6, height: 6, borderRadius: "50%", background: "rgba(255,255,255,0.25)", marginTop: 5, flexShrink: 0 }} />
+              <div style={{ minWidth: 0 }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 3, flexWrap: "wrap" }}>
+                  <StatusBadge status={u.status_at_update} />
+                  <span style={{ fontSize: 11, color: "rgba(255,255,255,0.32)" }}>
+                    {formatDate(u.created_at)}
+                  </span>
+                </div>
+                <p style={{ fontSize: 12.5, color: "rgba(255,255,255,0.55)", lineHeight: 1.55 }}>
+                  {u.message}
+                </p>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   )
 }
 
+function ServiceCard({ monitor, mobile }) {
+  return (
+    <div
+      style={{
+        background:   "rgba(255,255,255,0.03)",
+        border:       "1px solid rgba(255,255,255,0.08)",
+        borderRadius: 16,
+        padding:      mobile ? "16px 16px" : "18px 20px",
+        transition:   "background 0.15s",
+      }}
+    >
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, marginBottom: 12, flexWrap: "wrap" }}>
+        <p style={{ fontSize: mobile ? 14 : 15, fontWeight: 600, color: "rgba(255,255,255,0.9)", minWidth: 0 }}>
+          {monitor.name}
+        </p>
+        <StatusBadge status={monitor.status} />
+      </div>
+      {monitor.show_uptime_history && monitor.uptime_buckets && monitor.uptime_buckets.length > 0 ? (
+        <div>
+          <UptimeBars days={monitor.uptime_buckets} totalDays={90} />
+          <div style={{ display: "flex", justifyContent: "flex-end", marginTop: 6 }}>
+            <span style={{ fontSize: 12, color: "rgba(255,255,255,0.35)", fontFamily: "var(--font-jetbrains-mono,monospace)" }}>
+              {computeUptimePercentage(monitor.uptime_buckets)}% uptime
+            </span>
+          </div>
+        </div>
+      ) : (
+        <p style={{ fontSize: 12, color: "rgba(255,255,255,0.25)" }}>
+          No uptime history available yet.
+        </p>
+      )}
+    </div>
+  )
+}
+
+function computeUptimePercentage(buckets) {
+  if (!buckets || buckets.length === 0) return "—"
+  const withData = buckets.filter(b => b.status !== "no_data")
+  if (withData.length === 0) return "—"
+  const up = withData.filter(b => b.status === "up").length
+  return ((up / withData.length) * 100).toFixed(2)
+}
+
+function combineUptimeBuckets(monitors) {
+  if (!monitors || monitors.length === 0) return []
+  const allDays = {}
+  monitors.forEach(m => {
+    if (!m.uptime_buckets || m.uptime_buckets.length === 0) return
+    m.uptime_buckets.forEach(b => {
+      const date = b.date
+      if (!date) return
+      if (!allDays[date]) allDays[date] = { date, up: 0, down: 0, degraded: 0, total: 0 }
+      allDays[date].total += 1
+      if (b.status === "up") allDays[date].up += 1
+      else if (b.status === "down") allDays[date].down += 1
+      else if (b.status === "degraded") allDays[date].degraded += 1
+    })
+  })
+  const days = Object.values(allDays).sort((a, b) => new Date(a.date) - new Date(b.date))
+  return days.map(day => {
+    let status = "up"
+    if (day.down > 0) status = "down"
+    else if (day.degraded > 0) status = "degraded"
+    else if (day.total === 0) status = "no_data"
+    return { date: day.date, status, up: day.up, total: day.total }
+  })
+}
+
 export default function LiveStatusPage({ initialPage, slug }) {
-  const [page,        setPage]        = useState(initialPage)
-  const [lastUpdated, setLastUpdated] = useState(null)
-  const [hasError,    setHasError]    = useState(false)
+  const { isMobile, mounted } = useBreakpoint()
+  const mobile = mounted && isMobile
 
-  const refresh = useCallback(async () => {
-    try {
-      const data = await fetchPageData(slug)
-      if (data) { setPage(data); setLastUpdated(new Date()); setHasError(false) }
-    } catch { setHasError(true) }
-  }, [slug])
-
-  usePolling(refresh, 30000)
-
-  if (!page) return null
-
-  const overallStatus  = getOverallStatus(page)
-  const statusCfg      = STATUS_CONFIG[overallStatus]
-  const activeIncidents = (page.active_incidents ?? []).filter(i => i.status !== "resolved")
-  const monitors        = page.monitors ?? []
-
-  function formatUpdated(d) {
-    if (!d) return null
-    return d.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit", second: "2-digit" })
+  if (!initialPage) {
+    return (
+      <div style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", color: "rgba(255,255,255,0.5)", fontSize: 14 }}>
+        Loading status page...
+      </div>
+    )
   }
 
+  const page = initialPage
+  const overallStatus = page.overall_status || "operational"
+  const overallCfg = OVERALL_CONFIG[overallStatus] ?? OVERALL_CONFIG.operational
+  const brandHex = `#${page.brand_color ?? "3B82F6"}`
+  const hasIncidents = page.active_incidents?.length > 0
+  const hasMonitors = page.monitors?.length > 0
+
+  const [updated, setUpdated] = useState(new Date())
+  useEffect(() => {
+    const id = setInterval(() => setUpdated(new Date()), 30000)
+    return () => clearInterval(id)
+  }, [])
+
+  const combinedBuckets = useMemo(() => combineUptimeBuckets(page.monitors || []), [page.monitors])
+  const overallUptimePct = combinedBuckets.length > 0 ? computeUptimePercentage(combinedBuckets) : null
+
   return (
-    <div style={{ minHeight: "100vh", background: "#080B10", position: "relative" }}>
-      <BackgroundGrid />
+    <div style={{ minHeight: "100vh", background: "#050816", display: "flex", flexDirection: "column" }}>
 
-      <div style={{ position: "relative", zIndex: 1, maxWidth: 760, margin: "0 auto", padding: "0 20px 80px" }}>
+      {/* Hero */}
+      <div style={{
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        justifyContent: "center",
+        padding: mobile ? "44px 16px 32px" : "60px 20px 40px",
+        position: "relative",
+      }}>
+        <div style={{
+          position: "absolute",
+          top: "50%",
+          left: "50%",
+          transform: "translate(-50%, -50%)",
+          width: "80%",
+          maxWidth: 600,
+          height: 300,
+          background: `radial-gradient(ellipse at center, ${brandHex}22, transparent 70%)`,
+          pointerEvents: "none",
+        }} />
+        <div style={{ position: "relative", textAlign: "center", maxWidth: 720, width: "100%" }}>
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 10, marginBottom: 6 }}>
+            <svg width={mobile ? 30 : 36} height={mobile ? 30 : 36} viewBox="0 0 28 28" fill="none" style={{ flexShrink: 0 }}>
+              <rect width="28" height="28" rx="7" fill={brandHex} />
+              <circle cx="10" cy="18" r="2.2" fill="white" />
+              <path d="M 10 13.5 A 4.5 4.5 0 0 1 14.5 18" stroke="white" strokeWidth="1.8" strokeLinecap="round" fill="none" opacity="0.9" />
+              <path d="M 10 9.5 A 8.5 8.5 0 0 1 18.5 18" stroke="white" strokeWidth="1.8" strokeLinecap="round" fill="none" opacity="0.55" />
+              <path d="M 10 5.5 A 12.5 12.5 0 0 1 22.5 18" stroke="white" strokeWidth="1.8" strokeLinecap="round" fill="none" opacity="0.25" />
+            </svg>
+            <h1 style={{ fontSize: mobile ? 18 : 20, fontWeight: 700, color: "rgba(255,255,255,0.95)", letterSpacing: "-0.02em" }}>
+              {page.name}
+            </h1>
+          </div>
 
-        <div style={{ paddingTop: 60, paddingBottom: 48 }}>
-          <motion.div
-            initial={{ opacity: 0, y: 12 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.45, ease: [0.16, 1, 0.3, 1] }}
-          >
-            <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 6 }}>
-              <div style={{ width: 34, height: 34, borderRadius: 9, background: "linear-gradient(135deg, #1D4ED8, #2563EB)", display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 0 20px rgba(37,99,235,0.3)" }}>
-                <svg width="18" height="18" viewBox="0 0 28 28" fill="none">
-                  <circle cx="10" cy="18" r="2.2" fill="white"/>
-                  <path d="M 10 13.5 A 4.5 4.5 0 0 1 14.5 18" stroke="white" strokeWidth="1.8" strokeLinecap="round" fill="none" opacity="0.9"/>
-                  <path d="M 10 9.5 A 8.5 8.5 0 0 1 18.5 18" stroke="white" strokeWidth="1.8" strokeLinecap="round" fill="none" opacity="0.55"/>
-                  <path d="M 10 5.5 A 12.5 12.5 0 0 1 22.5 18" stroke="white" strokeWidth="1.8" strokeLinecap="round" fill="none" opacity="0.25"/>
-                </svg>
-              </div>
-              <h1 style={{ fontSize: 20, fontWeight: 700, color: "rgba(255,255,255,0.92)", margin: 0, letterSpacing: "-0.02em" }}>
-                {page.name}
-              </h1>
-            </div>
-
-            {page.description && (
-              <p style={{ fontSize: 14, color: "rgba(255,255,255,0.4)", marginBottom: 20, paddingLeft: 46 }}>
-                {page.description}
-              </p>
-            )}
-
-            <motion.div
-              key={overallStatus}
-              initial={{ opacity: 0.7, scale: 0.98 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.3 }}
-              style={{
-                display:      "inline-flex",
-                alignItems:   "center",
-                gap:          10,
-                padding:      "10px 18px",
-                borderRadius: 10,
-                background:   statusCfg.bg,
-                border:       `1px solid ${statusCfg.border}`,
-                marginLeft:   46,
-              }}
-            >
-              <motion.span
-                style={{ width: 9, height: 9, borderRadius: "50%", background: statusCfg.color, display: "inline-block" }}
-                animate={{ opacity: [1, 0.4, 1], scale: [1, 1.2, 1] }}
-                transition={{ duration: 2.2, repeat: Infinity, ease: "easeInOut" }}
-              />
-              <span style={{ fontSize: 14, fontWeight: 600, color: statusCfg.color }}>
-                {statusCfg.label}
-              </span>
-            </motion.div>
-          </motion.div>
-        </div>
-
-        <div style={{ height: 1, background: "rgba(255,255,255,0.06)", marginBottom: 40 }} />
-
-        {activeIncidents.length > 0 && (
-          <motion.section
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.4, delay: 0.1 }}
-            style={{ marginBottom: 40 }}
-          >
-            <p style={{ fontSize: 10, fontWeight: 600, color: "rgba(255,255,255,0.3)", letterSpacing: "0.1em", textTransform: "uppercase", marginBottom: 14 }}>
-              Active Incidents
+          {page.description && (
+            <p style={{ fontSize: mobile ? 13 : 14, color: "rgba(255,255,255,0.45)", lineHeight: 1.6, marginBottom: 22, padding: mobile ? "0 8px" : 0 }}>
+              {page.description}
             </p>
-            <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-              {activeIncidents.map(i => <IncidentCard key={i.id} incident={i} />)}
-            </div>
-          </motion.section>
-        )}
-
-        <motion.section
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.4, delay: 0.15 }}
-          style={{ marginBottom: 40 }}
-        >
-          <p style={{ fontSize: 10, fontWeight: 600, color: "rgba(255,255,255,0.3)", letterSpacing: "0.1em", textTransform: "uppercase", marginBottom: 14 }}>
-            Services
-          </p>
-
-          {monitors.length === 0 ? (
-            <div style={{ padding: "24px 20px", borderRadius: 12, background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.06)", textAlign: "center" }}>
-              <p style={{ fontSize: 13, color: "rgba(255,255,255,0.3)", margin: 0 }}>No services configured.</p>
-            </div>
-          ) : (
-            <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
-              {monitors.map((monitor, idx) => (
-                <motion.div
-                  key={monitor.id}
-                  initial={{ opacity: 0, x: -8 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ duration: 0.3, delay: 0.05 * idx }}
-                  style={{
-                    background:   "rgba(255,255,255,0.025)",
-                    border:       "1px solid rgba(255,255,255,0.07)",
-                    borderRadius: 10,
-                    padding:      "14px 18px",
-                    display:      "flex",
-                    alignItems:   "center",
-                    gap:          16,
-                    flexWrap:     "wrap",
-                  }}
-                >
-                  <span style={{ fontSize: 14, fontWeight: 500, color: "rgba(255,255,255,0.82)", flex: 1, minWidth: 120 }}>
-                    {monitor.name ?? monitor.public_name}
-                  </span>
-
-                  {monitor.show_uptime_history && monitor.uptime_buckets?.length > 0 && (
-                    <div style={{ flex: 2, minWidth: 100 }}>
-                      <UptimeBars buckets={monitor.uptime_buckets} />
-                    </div>
-                  )}
-
-                  <StatusBadge status={monitor.status} />
-                </motion.div>
-              ))}
-            </div>
           )}
-        </motion.section>
 
-        {/* Subscribe section has been removed entirely */}
+          <div style={{ marginBottom: 12 }}>
+            <div style={{
+              display: "inline-block",
+              padding: mobile ? "6px 14px" : "6px 18px",
+              borderRadius: 30,
+              fontSize: mobile ? 13 : 14,
+              fontWeight: 600,
+              color: overallCfg.color,
+              background: overallCfg.bg,
+              border: `1px solid ${overallCfg.border}`,
+            }}>
+              {overallCfg.label}
+            </div>
+          </div>
 
-        <div style={{ textAlign: "center" }}>
-          <p style={{ fontSize: 12, color: "rgba(255,255,255,0.18)" }}>
-            Powered by{" "}
-            <a href="/" style={{ color: "rgba(255,255,255,0.3)", textDecoration: "none" }}
-              onMouseEnter={e => e.currentTarget.style.color = "rgba(255,255,255,0.6)"}
-              onMouseLeave={e => e.currentTarget.style.color = "rgba(255,255,255,0.3)"}
-            >
-              Beacon
-            </a>
+          <div style={{
+            display:        "flex",
+            justifyContent: "center",
+            gap:            mobile ? 18 : 28,
+            flexWrap:       "wrap",
+            marginBottom:   8,
+          }}>
+            {overallUptimePct !== null ? (
+              <div>
+                <p style={{ fontSize: mobile ? 21 : 26, fontWeight: 700, color: "rgba(255,255,255,0.92)", fontFamily: "var(--font-jetbrains-mono,monospace)" }}>
+                  {overallUptimePct}%
+                </p>
+                <p style={{ fontSize: 11, color: "rgba(255,255,255,0.3)" }}>Uptime</p>
+              </div>
+            ) : (
+              <div>
+                <p style={{ fontSize: mobile ? 21 : 26, fontWeight: 700, color: "rgba(255,255,255,0.5)", fontFamily: "var(--font-jetbrains-mono,monospace)" }}>
+                  —
+                </p>
+                <p style={{ fontSize: 11, color: "rgba(255,255,255,0.3)" }}>Uptime</p>
+              </div>
+            )}
+            <div>
+              <p style={{ fontSize: mobile ? 21 : 26, fontWeight: 700, color: "rgba(255,255,255,0.92)", fontFamily: "var(--font-jetbrains-mono,monospace)" }}>
+                {page.active_incidents?.length || 0}
+              </p>
+              <p style={{ fontSize: 11, color: "rgba(255,255,255,0.3)" }}>Active Incidents</p>
+            </div>
+            <div>
+              <p style={{ fontSize: mobile ? 21 : 26, fontWeight: 700, color: "rgba(255,255,255,0.92)", fontFamily: "var(--font-jetbrains-mono,monospace)" }}>
+                {page.monitors?.length || 0}
+              </p>
+              <p style={{ fontSize: 11, color: "rgba(255,255,255,0.3)" }}>Monitored Services</p>
+            </div>
+          </div>
+
+          <p
+            style={{ fontSize: 11, color: "rgba(255,255,255,0.25)", fontFamily: "var(--font-jetbrains-mono,monospace)", marginTop: 6 }}
+            suppressHydrationWarning={true}
+          >
+            Updated {formatTime(updated)}
           </p>
         </div>
       </div>
 
-      {lastUpdated && (
-        <div style={{ position: "fixed", bottom: 20, right: 20, zIndex: 20 }}>
+      {/* Global uptime */}
+      {combinedBuckets.length > 0 && (
+        <div style={{ maxWidth: 720, margin: "0 auto", width: "100%", padding: mobile ? "0 16px" : "0 20px" }}>
           <div style={{
-            display:        "flex",
-            alignItems:     "center",
-            gap:            6,
-            padding:        "6px 12px",
-            borderRadius:   "9999px",
-            background:     "rgba(8,11,16,0.9)",
-            border:         "1px solid rgba(255,255,255,0.08)",
-            backdropFilter: "blur(8px)",
+            background:   "rgba(255,255,255,0.02)",
+            borderRadius: 16,
+            border:       "1px solid rgba(255,255,255,0.06)",
+            padding:      mobile ? "14px 14px" : "16px 18px",
+            overflowX:    "hidden",
           }}>
-            <motion.span
-              style={{ width: 6, height: 6, borderRadius: "50%", background: "#22C55E", display: "inline-block" }}
-              animate={{ opacity: [1, 0.3, 1] }}
-              transition={{ duration: 2, repeat: Infinity }}
-            />
-            <span style={{ fontSize: 11, color: "rgba(255,255,255,0.4)", fontFamily: "var(--font-jetbrains-mono, monospace)" }}>
-              Updated {formatUpdated(lastUpdated)}
-            </span>
+            <p style={{ fontSize: 11, fontWeight: 600, color: "rgba(255,255,255,0.3)", textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: 12 }}>
+              Last 90 Days
+            </p>
+            <UptimeBars days={combinedBuckets} totalDays={90} />
           </div>
         </div>
       )}
 
-      {hasError && (
-        <div style={{ position: "fixed", top: 20, right: 20, zIndex: 20 }}>
-          <div style={{ padding: "8px 14px", borderRadius: 8, background: "rgba(245,158,11,0.12)", border: "1px solid rgba(245,158,11,0.2)" }}>
-            <span style={{ fontSize: 12, color: "#F59E0B" }}>Connection issue- retrying...</span>
+      {/* Services */}
+      <div style={{ maxWidth: 720, margin: "0 auto", width: "100%", padding: mobile ? "28px 16px 0" : "32px 20px 0" }}>
+        {hasMonitors ? (
+          <>
+            <h2 style={{ fontSize: 11, fontWeight: 600, color: "rgba(255,255,255,0.3)", textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: 16 }}>
+              Services
+            </h2>
+            <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+              {page.monitors.map(monitor => (
+                <ServiceCard key={monitor.id} monitor={monitor} mobile={mobile} />
+              ))}
+            </div>
+          </>
+        ) : (
+          <div style={{
+            textAlign: "center",
+            padding: mobile ? "40px 18px" : "48px 24px",
+            borderRadius: 16,
+            border: "1px dashed rgba(255,255,255,0.1)",
+          }}>
+            <p style={{ fontSize: 14, color: "rgba(255,255,255,0.4)" }}>
+              No services configured yet.
+            </p>
           </div>
+        )}
+      </div>
+
+      {/* Incident history */}
+      <div style={{ maxWidth: 720, margin: "0 auto", width: "100%", padding: mobile ? "28px 16px" : "32px 20px" }}>
+        <h2 style={{ fontSize: 11, fontWeight: 600, color: "rgba(255,255,255,0.3)", textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: 16 }}>
+          Recent History
+        </h2>
+        {hasIncidents ? (
+          <div>
+            {page.active_incidents.map(incident => (
+              <IncidentCard key={incident.id} incident={incident} />
+            ))}
+          </div>
+        ) : (
+          <div style={{
+            display: "flex",
+            alignItems: "center",
+            gap: 10,
+            padding: mobile ? "14px 16px" : "16px 20px",
+            borderRadius: 16,
+            background: "rgba(34,197,94,0.05)",
+            border: "1px solid rgba(34,197,94,0.15)",
+          }}>
+            <svg viewBox="0 0 20 20" fill="none" stroke="#22C55E" strokeWidth="2" style={{ width: 18, height: 18, flexShrink: 0 }}>
+              <path d="M5 10l3.5 3.5L15 6" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
+            <p style={{ fontSize: 13, color: "rgba(255,255,255,0.5)" }}>
+              No incidents reported in the last 90 days.
+            </p>
+          </div>
+        )}
+      </div>
+
+      {/*
+        Subscribe CTA — disabled for now per request.
+        Re-enable by removing this comment block and the closing comment below
+        once email/Telegram subscription flow is ready to ship.
+
+      {page.allow_subscriptions && (
+        <div style={{ maxWidth: 720, margin: "0 auto", width: "100%", padding: mobile ? "0 16px 28px" : "0 20px 32px" }}>
+          <div style={{
+            borderRadius: 16,
+            border:       "1px solid rgba(255,255,255,0.08)",
+            background:   "rgba(255,255,255,0.02)",
+            padding:      mobile ? "16px 16px" : "18px 20px",
+            display:      "flex",
+            alignItems:   mobile ? "flex-start" : "center",
+            justifyContent: "space-between",
+            gap:          16,
+            flexWrap:     "wrap",
+            flexDirection: mobile ? "column" : "row",
+          }}>
+            <div>
+              <p style={{ fontSize: 14, fontWeight: 600, color: "rgba(255,255,255,0.85)", marginBottom: 2 }}>
+                Stay informed
+              </p>
+              <p style={{ fontSize: 12, color: "rgba(255,255,255,0.4)" }}>
+                Get notified when incidents are created or resolved.
+              </p>
+            </div>
+            
+              href={`/status/${slug}/subscribe`}
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                justifyContent: "center",
+                height: 40,
+                padding: "0 20px",
+                fontSize: 13,
+                fontWeight: 600,
+                borderRadius: 10,
+                background: brandHex,
+                color: "white",
+                textDecoration: "none",
+                boxShadow: `0 4px 14px ${brandHex}40`,
+                flexShrink: 0,
+                width: mobile ? "100%" : "auto",
+              }}
+            >
+              Subscribe
+            </a>
+          </div>
+        </div>
+      )}
+
+      */}
+
+      {/* Footer */}
+      {page.show_beacon_branding && (
+        <div style={{
+          marginTop: "auto",
+          borderTop: "1px solid rgba(255,255,255,0.06)",
+          padding: mobile ? "20px 16px 28px" : "24px 20px 32px",
+          display: "flex",
+          alignItems: mobile ? "flex-start" : "center",
+          justifyContent: "space-between",
+          flexDirection: mobile ? "column" : "row",
+          gap: 10,
+          maxWidth: 720,
+          marginLeft: "auto",
+          marginRight: "auto",
+          width: "100%",
+        }}>
+          <a
+            href="/"
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{
+              display: "inline-flex",
+              alignItems: "center",
+              gap: 6,
+              fontSize: 12,
+              color: "rgba(255,255,255,0.32)",
+              textDecoration: "none",
+            }}
+          >
+            <BeaconMark size={14} />
+            Powered by Beacon
+          </a>
+          <span
+            style={{ fontSize: 11, color: "rgba(255,255,255,0.25)", fontFamily: "var(--font-jetbrains-mono,monospace)" }}
+            suppressHydrationWarning={true}
+          >
+            Last updated {formatTime(updated)}
+          </span>
         </div>
       )}
     </div>

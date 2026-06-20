@@ -2,12 +2,12 @@
 
 import { Skeleton } from "@/components/ui/LoadingSkeleton"
 
-const STATUS_CLASS = {
-  up:      "uptime-bar-healthy",
-  down:    "uptime-bar-outage",
-  timeout: "uptime-bar-degraded",
-  error:   "uptime-bar-outage",
-  no_data: "uptime-bar-unknown",
+const STATUS_COLOR = {
+  up:      "#22C55E",
+  down:    "#EF4444",
+  timeout: "#F59E0B",
+  error:   "#EF4444",
+  no_data: "rgba(255,255,255,0.08)",
 }
 
 function formatDate(dateStr) {
@@ -45,10 +45,8 @@ function UptimeBarsDisplay({ days, totalDays }) {
         {sliced.map((day, idx) => (
           <div
             key={idx}
-            className={[
-              "flex-1 h-8 rounded-[1px] transition-opacity hover:opacity-70",
-              STATUS_CLASS[day.status] ?? "uptime-bar-unknown",
-            ].join(" ")}
+            className="flex-1 h-8 rounded-[1px] transition-opacity hover:opacity-70"
+            style={{ backgroundColor: STATUS_COLOR[day.status] ?? STATUS_COLOR.no_data }}
             title={
               day.date
                 ? `${formatDate(day.date)}: ${day.status}${
