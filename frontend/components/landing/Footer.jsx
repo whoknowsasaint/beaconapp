@@ -7,16 +7,16 @@ const COLS = [
       { label: "Features",      href: "#features"  },
       { label: "Dashboard",     href: "/login"      },
       { label: "Status pages",  href: "#features"  },
-      { label: "API",           href: "https://github.com/whoknowsasaint/beaconapp", external: true },
+      { label: "API",           href: "/docs#api", external: true },
     ],
   },
   {
     heading: "Developers",
     links: [
-      { label: "Documentation", href: "https://github.com/whoknowsasaint/beaconapp", external: true },
+      { label: "Documentation", href: "/docs", external: true },
       { label: "GitHub",        href: "https://github.com/whoknowsasaint/beaconapp", external: true },
-      { label: "Changelog",     href: "https://github.com/whoknowsasaint/beaconapp", external: true },
-      { label: "Self-hosting",  href: "https://github.com/whoknowsasaint/beaconapp", external: true },
+      //{ label: "Changelog",     href: "https://github.com/whoknowsasaint/beaconapp", external: true },
+      { label: "Self-hosting",  href: "/docs", external: true },
     ],
   },
   {
