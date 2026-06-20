@@ -406,7 +406,7 @@ paused       → Monitor is disabled, no checks running
               <P>Incidents represent a service disruption. They can be created automatically by the checker worker or manually by you.</P>
 
               <SubHeading>Auto-detection</SubHeading>
-              <P>When a monitor's status changes to <code style={{ fontFamily: "var(--font-jetbrains-mono,monospace)", fontSize: 12, color: "#F59E0B", background: "rgba(245,158,11,0.1)", padding: "1px 5px", borderRadius: 4 }}>outage</code>, the checker worker automatically creates a Critical incident linked to that monitor. When the monitor recovers, the incident is automatically resolved.</P>
+              <P>When a monitor&apos;s status changes to <code style={{ fontFamily: "var(--font-jetbrains-mono,monospace)", fontSize: 12, color: "#F59E0B", background: "rgba(245,158,11,0.1)", padding: "1px 5px", borderRadius: 4 }}>outage</code>, the checker worker automatically creates a Critical incident linked to that monitor. When the monitor recovers, the incident is automatically resolved.</P>
 
               <SubHeading>Incident workflow</SubHeading>
               <Code lang="text">{`
@@ -415,7 +415,7 @@ Investigating → Identified → Monitoring → Resolved
               <P>Each step is clickable in the dashboard. You can only advance to the next step — skipping is not allowed. Each step change is recorded in the update feed.</P>
 
               <SubHeading>Updates</SubHeading>
-              <P>Post status updates from the incident detail page. Updates marked "Visible on status page" appear on your public status page for subscribers to see.</P>
+              <P>Post status updates from the incident detail page. Updates marked &quot;Visible on status page&quot; appear on your public status page for subscribers to see.</P>
             </div>
 
             {/* Status Pages */}
@@ -427,8 +427,7 @@ Investigating → Identified → Monitoring → Resolved
               <P>Go to Dashboard → Status Pages → Create status page. Set a name and a slug. The slug becomes the public URL: <code style={{ fontFamily: "var(--font-jetbrains-mono,monospace)", fontSize: 12, color: "#3B82F6" }}>yoursite.com/status/your-slug</code>.</P>
 
               <SubHeading>Adding monitors</SubHeading>
-/* eslint-disable-next-line react/no-unescaped-entities */
-              <P>Open the status page builder and add monitors. Each monitor appears as a service row on the public page. Toggle "Show uptime history" to display 60-day uptime bars per monitor.</P>
+              <P>Open the status page builder and add monitors. Each monitor appears as a service row on the public page. Toggle &quot;Show uptime history&quot; to display 60-day uptime bars per monitor.</P>
 
               <SubHeading>Overall status logic</SubHeading>
               <Code lang="text">{`
