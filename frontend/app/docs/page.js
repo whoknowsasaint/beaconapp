@@ -427,6 +427,7 @@ Investigating → Identified → Monitoring → Resolved
               <P>Go to Dashboard → Status Pages → Create status page. Set a name and a slug. The slug becomes the public URL: <code style={{ fontFamily: "var(--font-jetbrains-mono,monospace)", fontSize: 12, color: "#3B82F6" }}>yoursite.com/status/your-slug</code>.</P>
 
               <SubHeading>Adding monitors</SubHeading>
+/* eslint-disable-next-line react/no-unescaped-entities */
               <P>Open the status page builder and add monitors. Each monitor appears as a service row on the public page. Toggle "Show uptime history" to display 60-day uptime bars per monitor.</P>
 
               <SubHeading>Overall status logic</SubHeading>

@@ -102,9 +102,11 @@ function ResponseCard({ show, reducedMotion }) {
         </span>
       </div>
       <p style={{ fontSize: "9px", color: "rgba(255,255,255,0.35)", fontFamily: "var(--font-mono)" }}>
+/* eslint-disable-next-line react/no-unescaped-entities */
         id: "inc_xK9m..."
       </p>
       <p style={{ fontSize: "9px", color: "rgba(255,255,255,0.25)", fontFamily: "var(--font-mono)" }}>
+/* eslint-disable-next-line react/no-unescaped-entities */
         status: "investigating"
       </p>
     </motion.div>

@@ -223,6 +223,7 @@ export default function APIKeysPage() {
           </code>
           <br />
           <code className="text-xs font-mono text-beacon-text-muted pl-4">
+/* eslint-disable-next-line react/no-unescaped-entities */
             -H "Authorization: Bearer bk_live_..."
           </code>
         </div>

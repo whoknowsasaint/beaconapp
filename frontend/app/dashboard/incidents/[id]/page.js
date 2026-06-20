@@ -525,7 +525,7 @@ export default function IncidentDetailPage() {
             >
               <h3 style={{ fontSize: 16, fontWeight: 700, color: "rgba(255,255,255,0.92)", marginBottom: 8 }}>Delete incident?</h3>
               <p style={{ fontSize: 13, color: "rgba(255,255,255,0.45)", marginBottom: 24, lineHeight: 1.5 }}>
-                This will permanently delete "{incident.title}" and all its updates. This cannot be undone.
+                This will permanently delete &quot;{incident.title}&quot; and all its updates. This cannot be undone.
               </p>
               <div style={{ display: "flex", gap: 10 }}>
                 <button
