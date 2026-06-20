@@ -10,7 +10,8 @@ services:
     runtime: python
     plan: free
     region: oregon
-    buildCommand: "./backend/build.sh"
+    rootDir: backend
+    buildCommand: "./build.sh"
     startCommand: "gunicorn core.wsgi:application --bind 0.0.0.0:$PORT"
     envVars:
       - key: DJANGO_SETTINGS_MODULE
@@ -43,6 +44,7 @@ services:
     runtime: python
     plan: free
     region: oregon
+    rootDir: backend
     buildCommand: "pip install -r requirements.txt"
     startCommand: "python manage.py runchecker --settings=core.settings.production"
     envVars:
