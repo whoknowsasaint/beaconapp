@@ -6,7 +6,11 @@ DEBUG = False
 
 SECRET_KEY = os.environ.get("SECRET_KEY")
 
-ALLOWED_HOSTS = os.environ.get("ALLOWED_HOSTS", "").split(",")
+# ALLOWED_HOSTS — filter out empty strings so a blank env var doesn't produce ['']
+ALLOWED_HOSTS = [
+    host.strip() for host in os.environ.get("ALLOWED_HOSTS", "").split(",")
+    if host.strip()
+]
 
 # Render injects RENDER_EXTERNAL_HOSTNAME automatically — add it so
 # health checks and the platform's own pings aren't blocked
@@ -37,11 +41,17 @@ MIDDLEWARE = [
 ] + [m for m in MIDDLEWARE if m != "django.middleware.security.SecurityMiddleware"]
 
 # CORS — only your Vercel frontend may call this API
-CORS_ALLOWED_ORIGINS = os.environ.get("CORS_ALLOWED_ORIGINS", "").split(",")
+CORS_ALLOWED_ORIGINS = [
+    origin.strip() for origin in os.environ.get("CORS_ALLOWED_ORIGINS", "").split(",")
+    if origin.strip()
+]
 CORS_ALLOW_CREDENTIALS = True
 
 # CSRF — Django session auth needs this for the dashboard login to work cross-origin
-CSRF_TRUSTED_ORIGINS = os.environ.get("CSRF_TRUSTED_ORIGINS", "").split(",")
+CSRF_TRUSTED_ORIGINS = [
+    origin.strip() for origin in os.environ.get("CSRF_TRUSTED_ORIGINS", "").split(",")
+    if origin.strip()
+]
 
 # Cookies must be secure + cross-site capable since frontend and backend
 # are on different domains (vercel.app vs onrender.com)
